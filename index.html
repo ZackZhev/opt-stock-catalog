@@ -518,6 +518,7 @@
 
     <a href="admin.html" class="admin-link">Админ-панель</a>
 
+    <script src="products-data.js"></script>
     <script>
         // Курс конвертации USD -> СОМ (загружается из localStorage)
         const EXCHANGE_RATE = parseFloat(localStorage.getItem('exchangeRate')) || 89;
@@ -545,85 +546,43 @@
             other: '📦'
         };
 
-        // Товары по умолчанию (добавляются автоматически если их нет)
-        const DEFAULT_PRODUCTS = [
-            { name: 'Skin1004 centella сыворотка SPF50+PA++++ с пробиотиками (50мл)', category: 'skincare', price: '9.20', currency: 'USD', stock: 35 },
-            { name: 'Skin1004 centella гидрофильное масло (200мл)', category: 'skincare', price: '9.00', currency: 'USD', stock: 80 },
-            { name: 'Skin1004 centella тонер осветляющий (210мл)', category: 'skincare', price: '9.20', currency: 'USD', stock: 5 },
-            { name: 'Salon link amino conditioner Damage repair 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
-            { name: 'Salon link medicated amino treatment in shampoo 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
-            { name: 'Salon link extra conditioner and 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
-            { name: 'Salon link extra shampoo treatment in 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
-            { name: 'Salon link extra conditioner repair & protect 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
-            { name: 'Salon link amino shampoo damage repair 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
-            { name: 'Celimax сыворотка с ниацинамидом 5% (30мл)', category: 'skincare', price: '8.73', currency: 'USD', stock: 50 },
-            { name: 'Celimax Noni сыворотка (30мл)', category: 'skincare', price: '9.35', currency: 'USD', stock: 20 },
-            { name: 'Celimax тонер пэды осветляющие (40 пэдов)', category: 'skincare', price: '7.50', currency: 'USD', stock: 2 },
-            { name: 'Celimax Retinal shot booster 0.1% (15ml)', category: 'skincare', price: '7.80', currency: 'USD', stock: 99 },
-            { name: 'Neogen сыворотка с ниацинамидом 15% (30мл)', category: 'skincare', price: '15.00', currency: 'USD', stock: 15 },
-            { name: 'Round lab birch juice intensive cream 50ml', category: 'skincare', price: '11.20', currency: 'USD', stock: 13 },
-            { name: 'Моросил для похудения (порошок 2,5г*14стиков)', category: 'supplements', price: '13.40', currency: 'USD', stock: 99 },
-            { name: 'Fazax средство для стимуляции роста волос (8мл)', category: 'haircare', price: '23.43', currency: 'USD', stock: 50 },
-            { name: 'Fazax средство для стимуляции роста ресниц (3мл)', category: 'other', price: '34.73', currency: 'USD', stock: 40 },
-            { name: 'Celimax сыворотка для жирной кожи (30мл)', category: 'skincare', price: '8.14', currency: 'USD', stock: 20 },
-            { name: 'Celimax cica serum (40ml)', category: 'skincare', price: '8.26', currency: 'USD', stock: 20 },
-            { name: 'Salon link extra shampoo 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
-            { name: 'Bioderma sensibio gel moussant (умывашка 200мл)', category: 'skincare', price: '16.13', currency: 'USD', stock: 30 },
-            { name: 'Torriden сыворотка поросужающая (30мл)', category: 'skincare', price: '10.50', currency: 'USD', stock: 40 },
-            { name: 'Skin1004 Centella сыворотка осветляющая (50мл)', category: 'skincare', price: '7.84', currency: 'USD', stock: 40 },
-            { name: 'Celimax Noni Acne Cleanser (155ml)', category: 'skincare', price: '8.70', currency: 'USD', stock: 49 },
-            { name: 'Torriden сыворотка с витамином C осветляющая (30мл)', category: 'skincare', price: '11.00', currency: 'USD', stock: 40 },
-            { name: 'Celimax dual barrier сыворотка (30мл)', category: 'skincare', price: '9.65', currency: 'USD', stock: 99 },
-            { name: 'Celimax НАБОР щербет (2шт*50мл)', category: 'sets', price: '11.59', currency: 'USD', stock: 5 },
-            { name: 'Celimax крем ниацинамид 5% +транексамовая кислота 5% (35мл)', category: 'skincare', price: '8.10', currency: 'USD', stock: 50 },
-            { name: "J'sDerma гель для местного применения против акне (20мл)", category: 'skincare', price: '8.37', currency: 'USD', stock: 7 },
-            { name: 'Kaine сыворотка на укрепление барьера (30мл)', category: 'skincare', price: '8.89', currency: 'USD', stock: 15 },
-            { name: 'Kaine сыворотка ночная с молочной кислотой 9% (30мл)', category: 'skincare', price: '8.80', currency: 'USD', stock: 30 },
-            { name: 'The ordinary тонер milky 100ml', category: 'skincare', price: '970', currency: 'SOM', stock: 99 },
-            { name: 'The ordinary сыворотка Hyaluronic 60ml', category: 'skincare', price: '1058', currency: 'SOM', stock: 99 },
-            { name: 'The ordinary сыворотка alpha arbutin 30ml', category: 'skincare', price: '882', currency: 'SOM', stock: 99 },
-            { name: 'The ordinary сыворотка Matrixyl 30ml', category: 'skincare', price: '882', currency: 'SOM', stock: 99 },
-            { name: 'Atopalm массажное масло 120ml', category: 'skincare', price: '931', currency: 'SOM', stock: 99 },
-            { name: 'The ordinary сыворотка Granactive 30мл', category: 'skincare', price: '811', currency: 'SOM', stock: 99 },
-            { name: 'The ordinary сыворотка caffeine 30ml', category: 'skincare', price: '882', currency: 'SOM', stock: 99 },
-            { name: 'VT крем TX-toning 50ml', category: 'skincare', price: '15.00', currency: 'USD', stock: 99 },
-            { name: 'ANUA сыворотка с азелаиновой кислотой 30мл', category: 'skincare', price: '13.06', currency: 'USD', stock: 99 },
-            { name: 'Arencia rice mucin умывашка 120гр', category: 'skincare', price: '10.00', currency: 'USD', stock: 99 },
-            { name: 'Arencia black tea умывашка 120гр', category: 'skincare', price: '10.00', currency: 'USD', stock: 99 },
-            { name: 'acwell тонер PH 150ml', category: 'skincare', price: '7.45', currency: 'USD', stock: 99 },
-            { name: 'Kaine сыворотка с коллагеном (30мл)', category: 'skincare', price: '8.89', currency: 'USD', stock: 30 },
-        ];
+        // Инициализация: загружаем все товары из INITIAL_PRODUCTS (products-data.js)
+        function initializeProducts() {
+            const existing = localStorage.getItem('products');
+            if (!existing || existing === '[]') {
+                localStorage.setItem('products', JSON.stringify(INITIAL_PRODUCTS));
+            }
+        }
 
-        // Автозагрузка товаров в localStorage
-        function seedProducts() {
+        // Подгрузка новых товаров и обновление цен
+        function seedNewProducts() {
             const existing = JSON.parse(localStorage.getItem('products') || '[]');
             const existingNames = new Set(existing.map(p => p.name.toLowerCase()));
-            let added = 0;
+            let changed = false;
 
-            DEFAULT_PRODUCTS.forEach(dp => {
-                if (!existingNames.has(dp.name.toLowerCase())) {
-                    existing.push({
-                        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                        name: dp.name,
-                        category: dp.category,
-                        description: '',
-                        price: dp.price,
-                        currency: dp.currency,
-                        stock: dp.stock,
-                        barcode: '',
-                        image: ''
-                    });
-                    existingNames.add(dp.name.toLowerCase());
-                    added++;
+            INITIAL_PRODUCTS.forEach(ip => {
+                if (!existingNames.has(ip.name.toLowerCase())) {
+                    existing.push(ip);
+                    existingNames.add(ip.name.toLowerCase());
+                    changed = true;
+                } else if (parseFloat(ip.price) > 0) {
+                    const match = existing.find(p => p.name.toLowerCase() === ip.name.toLowerCase());
+                    if (match && parseFloat(match.price) === 0) {
+                        match.price = ip.price;
+                        match.currency = ip.currency || 'USD';
+                        match.stock = ip.stock || match.stock;
+                        changed = true;
+                    }
                 }
             });
 
-            if (added > 0) {
+            if (changed) {
                 localStorage.setItem('products', JSON.stringify(existing));
             }
         }
 
-        seedProducts();
+        initializeProducts();
+        seedNewProducts();
 
         // Получить цену в USD для сравнения
         function getPriceInUSD(product) {
