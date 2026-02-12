@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Каталог товаров</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 50%, #b3c2e8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px 25px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #1a237e;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h1::before {
+            content: '';
+            width: 8px;
+            height: 35px;
+            background: linear-gradient(180deg, #5c6bc0, #3949ab);
+            border-radius: 4px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(57, 73, 171, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #444;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #eee;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+            color: white;
+            padding: 8px 14px;
+            font-size: 0.85em;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 57, 53, 0.4);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+            color: white;
+            padding: 8px 14px;
+            font-size: 0.85em;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(92, 107, 192, 0.4);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 160, 71, 0.4);
+        }
+
+        .btn-import {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+        }
+
+        .btn-import:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4);
+        }
+
+        /* Панель статистики */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #5c6bc0, #3949ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* Фильтры */
+        .filters-panel {
+            background: rgba(255,255,255,0.9);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            background: #fff;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #5c6bc0;
+            box-shadow: 0 0 15px rgba(92, 107, 192, 0.2);
+        }
+
+        .filter-select {
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            background: #fff;
+            color: #333;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .filter-select option {
+            background: #fff;
+            color: #333;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #5c6bc0;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #1a237e;
+            font-size: 1.4em;
+        }
+
+        .close-btn {
+            background: #f5f5f5;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #ffebee;
+            color: #e53935;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #fff;
+            color: #333;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #999;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #5c6bc0;
+            box-shadow: 0 0 15px rgba(92, 107, 192, 0.2);
+        }
+
+        .form-group select option {
+            background: #fff;
+            color: #333;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .price-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .price-input-group input {
+            flex: 1;
+        }
+
+        .price-input-group select {
+            width: 100px;
+        }
+
+        .converted-price {
+            margin-top: 8px;
+            padding: 10px 14px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            color: #2e7d32;
+            font-size: 0.9em;
+            border: 1px solid #c8e6c9;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        /* Список товаров */
+        .products-admin {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-admin-item {
+            background: rgba(255,255,255,0.95);
+            border-radius: 14px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .product-admin-item:hover {
+            transform: translateX(5px);
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-color: #5c6bc0;
+        }
+
+        .product-admin-image {
+            width: 65px;
+            height: 65px;
+            min-width: 65px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .product-admin-image:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+
+        .product-admin-image:hover::after {
+            content: '+';
+            position: absolute;
+            inset: 0;
+            background: rgba(92, 107, 192, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            border-radius: 12px;
+        }
+
+        .product-admin-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-admin-info {
+            flex: 1;
+        }
+
+        .product-admin-name {
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 4px;
+            font-size: 1.05em;
+        }
+
+        .product-admin-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .product-admin-price {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .product-admin-barcode {
+            color: #888;
+            font-size: 0.85em;
+            font-family: monospace;
+        }
+
+        .product-admin-category {
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .product-admin-stock {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .stock-high {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stock-low {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        .stock-out {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .product-admin-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 20px;
+            border: 2px dashed #ccc;
+        }
+
+        .empty-state p {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 25px;
+        }
+
+        /* Скрытый input для импорта */
+        .hidden-input {
+            display: none;
+        }
+
+        /* Панель диапазона цен */
+        .price-range-panel {
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .price-range-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .price-range-input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .price-range-input:focus {
+            outline: none;
+            border-color: #5c6bc0;
+        }
+
+        .btn-small {
+            padding: 8px 14px;
+            font-size: 0.85em;
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-small:hover {
+            background: #eee;
+        }
+
+        /* Иконки категорий */
+        .category-icon {
+            width: 20px;
+            text-align: center;
+            margin-right: 4px;
+        }
+
+        /* Анимации появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-admin-item {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        .product-admin-item:nth-child(1) { animation-delay: 0.02s; }
+        .product-admin-item:nth-child(2) { animation-delay: 0.04s; }
+        .product-admin-item:nth-child(3) { animation-delay: 0.06s; }
+        .product-admin-item:nth-child(4) { animation-delay: 0.08s; }
+        .product-admin-item:nth-child(5) { animation-delay: 0.1s; }
+
+        /* Счётчик товаров */
+        .products-count {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .products-count span {
+            color: #00d9ff;
+            font-weight: 600;
+        }
+
+        /* Улучшенная статистика */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #5c6bc0, #3949ab);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Счётчик товаров */
+        .products-count {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+        }
+
+        .products-count span {
+            color: #5c6bc0;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .product-admin-item {
+                flex-wrap: wrap;
+            }
+
+            .product-admin-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+
+            .stats-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    </style>
+    <style id="login-styles">
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 50%, #b3c2e8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: #1a237e;
+            font-size: 1.6em;
+            margin-bottom: 8px;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1em;
+            text-align: center;
+            letter-spacing: 3px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            color: #333;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #5c6bc0;
+            box-shadow: 0 0 15px rgba(92,107,192,0.2);
+            background: #fff;
+        }
+
+        .login-input.error {
+            border-color: #e53935;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-4px); }
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 18px;
+            background: linear-gradient(135deg, #5c6bc0, #3949ab);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(57,73,171,0.4);
+        }
+
+        .login-error {
+            color: #e53935;
+            font-size: 0.9em;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+
+        .login-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Экран входа -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="login-icon">🔒</div>
+            <h2>Админ-панель</h2>
+            <p>Введите пароль для входа</p>
+            <input type="password" class="login-input" id="loginPassword" placeholder="••••••" autofocus
+                onkeydown="if(event.key==='Enter')checkPassword()">
+            <button class="login-btn" onclick="checkPassword()">Войти</button>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <div class="container" id="adminContent" style="display:none;">
+        <header>
+            <h1>Админ-панель</h1>
+            <div class="exchange-rate-box" style="display:flex;align-items:center;gap:8px;background:#f5f5f5;padding:10px 15px;border-radius:10px;">
+                <label style="color:#666;font-size:13px;font-weight:500;">Курс: 1 USD =</label>
+                <input type="number" id="exchangeRateInput" value="89" min="1" step="0.01"
+                    style="width:70px;padding:6px 10px;border:2px solid #e0e0e0;border-radius:8px;background:#fff;color:#333;font-size:14px;text-align:center;font-weight:600;"
+                    oninput="updateExchangeRate(this.value)">
+                <span style="color:#666;font-size:13px;font-weight:500;">СОМ</span>
+            </div>
+            <div class="header-buttons">
+                <button class="btn btn-export" onclick="printCatalog()">Печать</button>
+                <button class="btn btn-secondary" onclick="previewCatalog()">Просмотр</button>
+                <button class="btn btn-import" onclick="downloadPDF()">Скачать PDF</button>
+                <button class="btn btn-danger" onclick="resetProducts()">Сбросить</button>
+                <a href="index.html" class="btn btn-secondary">Каталог</a>
+                <button class="btn btn-primary" onclick="openModal()">+ Добавить</button>
+            </div>
+        </header>
+
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-value" id="totalProducts">0</div>
+                <div class="stat-label">Всего товаров</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalCategories">0</div>
+                <div class="stat-label">Категорий</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="inStock">0</div>
+                <div class="stat-label">В наличии</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="outOfStock">0</div>
+                <div class="stat-label">Нет в наличии</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalStock">0</div>
+                <div class="stat-label">Всего единиц</div>
+            </div>
+        </div>
+
+        <div class="filters-panel">
+            <input type="text" class="search-input" id="searchInput" placeholder="Поиск по названию или штрихкоду...">
+            <select class="filter-select" id="categoryFilter">
+                <option value="">Все категории</option>
+            </select>
+            <select class="filter-select" id="stockFilter">
+                <option value="">Любое наличие</option>
+                <option value="in">В наличии</option>
+                <option value="low">Мало</option>
+                <option value="out">Нет в наличии</option>
+            </select>
+            <select class="filter-select" id="sortFilter">
+                <option value="name-asc">По названию А-Я</option>
+                <option value="name-desc">По названию Я-А</option>
+                <option value="price-asc">Цена: по возрастанию</option>
+                <option value="price-desc">Цена: по убыванию</option>
+                <option value="stock-asc">Наличие: мало → много</option>
+                <option value="stock-desc">Наличие: много → мало</option>
+            </select>
+        </div>
+
+        <div class="price-range-panel">
+            <div class="price-range-label">Цена от</div>
+            <input type="number" id="priceMin" class="price-range-input" placeholder="0" min="0" step="0.01">
+            <div class="price-range-label">до</div>
+            <input type="number" id="priceMax" class="price-range-input" placeholder="999" min="0" step="0.01">
+            <div class="price-range-label">USD</div>
+            <button class="btn btn-small" onclick="clearPriceFilter()">Сбросить</button>
+        </div>
+
+        <div class="products-admin" id="productsAdmin">
+            <!-- Товары загружаются из localStorage -->
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления/редактирования -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Добавить товар</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId">
+
+                <div class="form-group">
+                    <label for="productName">Название товара *</label>
+                    <input type="text" id="productName" required placeholder="Введите название">
+                </div>
+
+                <div class="form-group">
+                    <label for="productCategory">Категория</label>
+                    <select id="productCategory">
+                        <option value="">Без категории</option>
+                        <option value="skincare">Уход за кожей</option>
+                        <option value="haircare">Уход за волосами</option>
+                        <option value="makeup">Макияж</option>
+                        <option value="perfume">Парфюмерия</option>
+                        <option value="hygiene">Гигиена</option>
+                        <option value="supplements">Добавки</option>
+                        <option value="sets">Наборы</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">Описание</label>
+                    <textarea id="productDescription" placeholder="Описание товара"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productPrice">Цена *</label>
+                        <div class="price-input-group">
+                            <input type="number" id="productPrice" required step="0.01" min="0" placeholder="0.00" oninput="updateConvertedPrice()">
+                            <select id="priceCurrency" onchange="updateConvertedPrice()">
+                                <option value="USD">USD</option>
+                                <option value="SOM">СОМ</option>
+                            </select>
+                        </div>
+                        <div class="converted-price" id="convertedPrice" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productStock">Количество *</label>
+                        <input type="number" id="productStock" required min="0" value="0" placeholder="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productBarcode">Штрихкод</label>
+                    <input type="text" id="productBarcode" placeholder="Например: 4601234567890">
+                </div>
+
+                <div class="form-group">
+                    <label for="productImage">Ссылка на изображение</label>
+                    <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // === АВТОРИЗАЦИЯ ===
+        const ADMIN_PASSWORD = 'admin2025';
+
+        function checkPassword() {
+            const input = document.getElementById('loginPassword');
+            const error = document.getElementById('loginError');
+
+            if (input.value === ADMIN_PASSWORD) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                sessionStorage.setItem('adminAuth', 'true');
+            } else {
+                input.classList.add('error');
+                error.textContent = 'Неверный пароль';
+                setTimeout(() => {
+                    input.classList.remove('error');
+                }, 400);
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // Проверка сессии (не просить пароль повторно в этой вкладке)
+        if (sessionStorage.getItem('adminAuth') === 'true') {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+        }
+
+        // === ОСНОВНОЙ КОД ===
+        let editingId = null;
+        let EXCHANGE_RATE = parseFloat(localStorage.getItem('exchangeRate')) || 89; // 1 USD = X СОМ
+
+        // Категории с иконками
+        const CATEGORIES = {
+            skincare: 'Уход за кожей',
+            haircare: 'Уход за волосами',
+            makeup: 'Макияж',
+            perfume: 'Парфюмерия',
+            hygiene: 'Гигиена',
+            supplements: 'Добавки',
+            sets: 'Наборы',
+            other: 'Другое'
+        };
+
+        const CATEGORY_ICONS = {
+            skincare: '✨',
+            haircare: '💇',
+            makeup: '💄',
+            perfume: '🌸',
+            hygiene: '🧴',
+            supplements: '💊',
+            sets: '🎁',
+            other: '📦'
+        };
+
+        // Начальные данные товаров (загружаются только при первом открытии)
+        const INITIAL_PRODUCTS = [
+            {id: "1", name: "Skin1004 travel kit", barcode: "8809576261233", price: "0", description: "", category: "sets", stock: 0},
+            {id: "2", name: "Axis-y Sunday morning refreshing cleansing foam 120ml", barcode: "8809634610096", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "3", name: "adh", barcode: "8809980242224", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "4", name: "Anua toner azelaic+cica 250 ml", barcode: "8800307370743", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "5", name: "Lagom cellus mild moisture cream", barcode: "8809450980038", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "6", name: "Pore + dark spot kit CELIMAX", barcode: "8800296551789", price: "0", description: "", category: "sets", stock: 0},
+            {id: "7", name: "Pre more база+spf", barcode: "8809971481649", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "8", name: "Torriden low molecular 400ml", barcode: "8809784605409", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "9", name: "oneday jelly", barcode: "8809980242224", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "10", name: "Skin&lab vitamin c serum 30ml", barcode: "8809525930494", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "11", name: "Round lab spf birch juice moisturizer cream 50ml", barcode: "8809782551814", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "12", name: "Round lab soybean pantheon toner 250ml", barcode: "8809962541024", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "13", name: "EIIO SERUM VITAMIN C", barcode: "8804014252378", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "14", name: "147 Barrier Cream (50ml.)", barcode: "8809447251363", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "15", name: "Probioderm 3 D lifting ampoule", barcode: "8809971480918", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "16", name: "Lagom ph cure foam cleanser", barcode: "8809450980762", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "17", name: "Clio kill cover high glow cushion", barcode: "8809937590545", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "18", name: "lagom cellus mist toner 100ml", barcode: "8809450982988", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "19", name: "Anua glow serum 30ml", barcode: "8809640736667", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "20", name: "Purito luminous ceramide moisturizer cream 10l", barcode: "8809563102129", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "21", name: "Elastin lg шампунь 600мл", barcode: "8801051166729", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "22", name: "probioderm 3D lifting cream essence", barcode: "8800276310146", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "23", name: "PDRN HYALURON", barcode: "8800307371672", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "24", name: "Meditherapy intomox suction jet", barcode: "8809606776409", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "25", name: "Fino premium touch", barcode: "4901872837144", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "26", name: "Dear Beaute Himawari", barcode: "4901417700582", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "27", name: "Meditherapy shumage set", barcode: "https://m.site.naver.com/1ou7o", price: "0", description: "", category: "sets", stock: 0},
+            {id: "28", name: "Meditherapy tranexamic skin booster", barcode: "8809606776867", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "29", name: "Diane Perfect Beauty Sakura Shine", barcode: "http://www.moist-diane.jp/", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "30", name: "Honeyque Special trial kit", barcode: "4580635110818", price: "0", description: "", category: "sets", stock: 0},
+            {id: "31", name: "Diane Damage repair набор", barcode: "4580632118985", price: "0", description: "", category: "sets", stock: 0},
+            {id: "32", name: "Tsubaki Premium Moist & Repair", barcode: "4550516485236", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "33", name: "Tsubaki Premium Volume & Repair", barcode: "4550516485632", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "34", name: "Skin&lab niacinamide recovery serum 30 ml", barcode: "8809525932085", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "35", name: "Tsubaki", barcode: "4550516485977", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "36", name: "Skin&lab retinol repair serum 30ml", barcode: "8809525931880", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "37", name: "Tsubaki Premium cool & Repair", barcode: "4550516711090", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "38", name: "Tsubaki Premium Cool & Repair", barcode: "4550516711083", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "39", name: "Daeng Gi Meo Ri", barcode: "8807779087926", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "40", name: "Honey & Melty Moist Repair Shampoo", barcode: "4589546892226", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "41", name: "Honey & Melty Moist Repair Treatment", barcode: "4589546892233", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "42", name: "Honey & deep moist shampoo", barcode: "4589546890758", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "43", name: "BIDALLI 10 Mandela acid +arginine serum", barcode: "8809635233065", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "44", name: "test", barcode: "4610080726286", price: "0", description: "", category: "other", stock: 0},
+            {id: "45", name: "Sweet beauty ободок для умывания", barcode: "6926641039954", price: "0", description: "", category: "other", stock: 0},
+            {id: "46", name: "Dear Beaute Himawari", barcode: "4901417701008", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "47", name: "Fino premium touch кондиционер", barcode: "4550516476074", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "48", name: "VT Cosmetics Reedle Shot Synergy Repair Cream 700", barcode: "8803463004897", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "49", name: "SUR. AZULENE SOOTHING PH CLEANSER", barcode: "8809653242162", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "50", name: "K-SECRET Seoul 1988 Glow Serum. NIacinamide 30ml", barcode: "8809695240621", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "51", name: "Tranexamic Acid Skin Booster", barcode: "8809606776881", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "52", name: "SUR.MEDIC AZULENE SOOTHING TRIALKIL", barcode: "8809653247549", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "53", name: "VT Cosmetics Reedle Shot Lifting Cream", barcode: "8809695679537", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "54", name: "VT cosmetics 100 PDRN reedle shot 50ml", barcode: "8803463006853", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "55", name: "VT Cosmetics Cica Reti-A Essence 0.7.", barcode: "8809695679292", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "56", name: "K-Secret Seoul 1988 Advanced Shot: Retinal Liposome 12% + Black Rice. 15ml", barcode: "8809695240676", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "57", name: "Realbarrier peptivita C blemish serum", barcode: "8809911695099", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "58", name: "VT Cosmetics Pro Cica Reedle Shot 300", barcode: "8803463005719", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "59", name: "SUR.MEDIC AZULENE SOOTHING PEPTIDE AMPOULE", barcode: "8809381449727", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "60", name: "SUR.MEDIC AZULENE SOOTNIG MOUSSE TONER", barcode: "8809381449710", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "61", name: "K-SECRET Seoul 1988 Capsule Cream: Niacinamide 5% + Yuja. 50ml", barcode: "8809695240614", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "62", name: "VT Cosmetics Reedle Shot Lifting Serum", barcode: "8809695679520", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "63", name: "K-SECRET Seoul 1988 Boosting Ball. 35mg", barcode: "8809695240607", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "64", name: "Healthy Place", barcode: "8809747822676", price: "0", description: "", category: "supplements", stock: 0},
+            {id: "65", name: "Dr.Ceuracle JEJU MATCHA TEA ESSENCE", barcode: "8806133617021", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "66", name: "Healthy Place", barcode: "8809747822690", price: "0", description: "", category: "supplements", stock: 0},
+            {id: "67", name: "Medicube", barcode: "8800256119660", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "68", name: "VT Cosmetics Red Booster Reedle Shot 700", barcode: "8803463009670", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "69", name: "Medicube TXA", barcode: "8800256119134", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "70", name: "K-Secret Seoul 1988 Cream: Retinal Liposome 1% + Fermented Rice. 50ml36", barcode: "8809695240584", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "71", name: "K-SECRET SEOUL 1988. Collagen serum", barcode: "8809695240638", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "72", name: "K-Secret Seoul 1988 Serum: Retinal 30ml", barcode: "8809695240508", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "73", name: "K-SECRET Seoul 1988 Eye Cream: Retinal Liposome 4% + Fermented Bean. 30ml", barcode: "8809695240577", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "74", name: "By Wishtrend Vitamin 75 Maximizing Cream. 50g", barcode: "8809416470696", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "75", name: "Medicube Deep Lifting Peptide Eye Cream", barcode: "8800240579838", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "76", name: "VT Cosmetics Phyto PDRN Panax PDRN Hydrating & Even Skin Tone Toner", barcode: "8803463012403", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "77", name: "VT Cosmetics PDRN Essence Stick Balm", barcode: "8803463007393", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "78", name: "Nuibe Niacinamide 15 Radiance Serum. 50ml", barcode: "8809743545975", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "79", name: "VT Cosmetics PDRN Reedle Shot Eye Lifter рефил", barcode: "8803463012205", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "80", name: "VT Cosmetics Hydrop Reedle Shot 700 hL.", barcode: "8803463007560", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "81", name: "By Wishtrend Vitamin A-mazing Bakuchiol Body Lotion 150g", barcode: "8809572892059", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "82", name: "Medicube PDRN Pink Collagen Capsule Cream", barcode: "8800256118885", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "83", name: "VT Cosmetics PDRN Grinding Cleansing Balm", barcode: "8803463012823", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "84", name: "Marvis Garden Collection", barcode: "8004395112821", price: "0", description: "", category: "hygiene", stock: 0},
+            {id: "85", name: "Зуб. Паста Median 93% white", barcode: "8809585101438", price: "0", description: "", category: "hygiene", stock: 0},
+            {id: "86", name: "Tetra force", barcode: "8809266950065", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "87", name: "Cos De baha toner peptide 200 ml", barcode: "8809240317877", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "88", name: "By Wishtrend Vitamin A-mazing Bakuchiol Night Cream 30g9", barcode: "8809572891328", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "89", name: "By Wishtrend Mandelic Acid Dark Spot Correcting Serum. 30ml", barcode: "8809572895579", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "90", name: "Derma Factory Adenosine 7500ppm Water Essence.", barcode: "8809563068081", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "91", name: "By Wishtrend (Mandelic Acid Gentle Exfoliating Toner 150ml", barcode: "8809572890352", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "92", name: "Nine Less B-Boost 10% Niacinamide Serum. 30ml", barcode: "8809875270080", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "93", name: "TXA 2.5% Intensive Brightening Cream", barcode: "8809634611178", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "94", name: "Derma Factory Idebenone 1% Ampoule. 10ml", barcode: "8809563066995", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "95", name: "DERMA FACTORY KOMBUCHA 80% TREATMENT", barcode: "8809563069712", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "96", name: "Dr.Althea 345 mist 100 ml", barcode: "8809447256115", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "97", name: "Vegan Collagen Eye serum", barcode: "8809634610881", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "98", name: "Dual Barrier Mild Gel Cleanser", barcode: "8809606850499", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "99", name: "Beauty of joseon spf sun relief", barcode: "8809968130277", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "100", name: "Dr Althea PDRN 5000", barcode: "8809447256412", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "101", name: "EIIO Ultra Fresh Balancing Toner. 150ml", barcode: "8809525249992", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "102", name: "EIIO Vita A Retinol Ampoule Night Care. 30ml", barcode: "8809971486279", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "103", name: "SKIN1004 Madagascar Centella Soothing Cream объемом 75 мл", barcode: "8809576261134", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "104", name: "SKIN1004 Madagascar Centella Quick Calming Pad", barcode: "8809576261387", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "105", name: "FINO масло для волос 70мл", barcode: "4901872471997", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "106", name: "Dual Barrier Creamy Toner", barcode: "8809606850475", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "107", name: "SKIN1004 Madagascar Centella Ampoule Foam объемом 125 мл", barcode: "8809576261127", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "108", name: "SKIN1004 Madagascar Centella Probio-Cica Intensive Ampoule", barcode: "8809576261752", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "109", name: "Skin1004 Madagascar Centella Hyalu-Cica Water-Fit SPF50+ PA++++", barcode: "8809576261592", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "110", name: "Biodance Hydro Ceramide Cleansing Powder.", barcode: "8809937361015", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "111", name: "SKIN1004 Madagascar Centella Matrixyl 10 Boosting Shot Ampoule", barcode: "8809913832508", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "112", name: "Nuibe Sherbet Solid Perfume 001 Lily Cotton 40ml", barcode: "8804014253955", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "113", name: "Nuibe Sherbet Solid Perfume 40ml", barcode: "8804014253962", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "114", name: "W.Dressroom New York №40 Chic Amber. 50ml", barcode: "8805301009040", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "115", name: "W.DRESSROOM New York Moisturizing Perfume Hand Cream 07 Green Bergamot. 50ml", barcode: "8805301015720", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "116", name: "W.Dressroom New York No. 514 May Rose. 50ml", barcode: "8805301012439", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "117", name: "W.Dressroom Moisturizing Perfume Hand Cream No. 11 White Soap 50ml", barcode: "8805301007138", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "118", name: "W.Dressroom Moisturizing Perfume Hand Cream No. 11 White Soap", barcode: "8805301002836", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "119", name: "W.DRESSROOM Moisturizing Perfume Hand Cream №30 White Musk. 50ml", barcode: "8805301008081", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "120", name: "W.Dressroom №20 Flower Shop. 50ml", barcode: "8805301012989", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "121", name: "Lion Soflan Aroma Rich Ellie. 480ml", barcode: "4903301353140", price: "0", description: "", category: "hygiene", stock: 0},
+            {id: "122", name: "Lion Soflan Aroma Rich Juliette. 480ml", barcode: "4903301353041", price: "0", description: "", category: "hygiene", stock: 0},
+            {id: "123", name: "Lion Soflan Aroma Rich Diana 480ml", barcode: "4903301353119", price: "0", description: "", category: "hygiene", stock: 0},
+            {id: "124", name: "Axis-y cream (60ml.) Cera-Heart My Type Dou", barcode: "8809634610041", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "125", name: "VT PDRN Toner pad (170ml. 60pads)", barcode: "8803463014407", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "126", name: "Скальп-ампула для роста волос VT (15мл.)", barcode: "8803463011659", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "127", name: "300 VT REEDLE SHOT сыворотка (10саше*2мл.)", barcode: "8803463007300", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "128", name: "НАБОР Вибрирующий крем под глаза VT (2шт.*15мл.)", barcode: "8803463011277", price: "0", description: "", category: "sets", stock: 0},
+            {id: "129", name: "100 REEDLE SHOT VT сыворотка в саше (10саше по 2мл.)", barcode: "8803463007294", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "130", name: "100 VT VITA-LIGHT REDDLE SHOT сыворотка (10саше*2мл.)", barcode: "8803463007256", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "131", name: "100 VT RETI-A REEDLE SHOT сыворотка (10саше*2мл.)", barcode: "8803463007249", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "132", name: "Вибрирующий крем под глаза VT с PDRN (15мл.)", barcode: "8803463012199", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "133", name: "100 VT HYDROP REEDLE SHOT сыворотка (50мл.)", barcode: "8803463007546", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "134", name: "300 VT HYDROP REEDLE SHOT сыворотка (50мл.)", barcode: "8803463007553", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "135", name: "VT GEL CREAM Garlic Ac (50ml.)", barcode: "8803463012090", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "136", name: "700 VT REEDLE SHOT ночная сыворотка каждые 7 дней (30мл.)", barcode: "8809695678448", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "137", name: "1000 VT REEDLE SHOT сыворотка (15мл.)", barcode: "8803463003500", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "138", name: "Бустер шот 2000 Isntree Onion Newpair (50ml.)", barcode: "8809800941221", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "139", name: "Сыворотка с ретинолом и ниацинамидом Numbuzin 3+ blue pore (30ml.)", barcode: "8809652589749", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "140", name: "Патчи гидроколоидные местные с миндальной кислотой By Wishtrend (13шт.*3листа)", barcode: "8809324920726", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "141", name: "Сыворотка солнцезащитная 50+PA++++ Probioderm 3D Lifting (50ml.)", barcode: "8800276314847", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "142", name: "Medicube Kojic Acid Turmeric Toning Cleanser 120g", barcode: "8800289474958", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "143", name: "Medicube Azelaic Acid Niacinamide Deep Clean Foam Cleanser 120g", barcode: "8800289473395", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "144", name: "Medicube Kojic Acid Turmeric Resurfacing Toner 250ml", barcode: "8800289475023", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "145", name: "Medicube Exosome Cica Toner 210ml", barcode: "8800256112159", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "146", name: "НАБОР крем под глаза Probioderm (2шт.*25мл.)", barcode: "8809971483957", price: "0", description: "", category: "sets", stock: 0},
+            {id: "147", name: "Medicube Kojic Acid Turmeric Vita Jelly Mist Serum 100ml", barcode: "8800289479458", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "148", name: "Medicube Azelaic Acid Niacinamide Clear Toner 250ml", barcode: "8800289475344", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "149", name: "Тонер NAD+ +PDRN+50 Peptides Numbuzin (150ml.)", barcode: "8809652589794", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "150", name: "Эссенция NAD+ +50 peptides Numbuzin 9+ (50ml.)", barcode: "8809652587639", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "151", name: "Крем под глаза NAD+ Retinol+50Peptides Volumetox Numbuzin 9+ (10ml.)", barcode: "8809652589800", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "152", name: "Medicube Collagen Night Wrapping Mask.", barcode: "8800256113217", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "153", name: "BB Pre More", barcode: "8809875907023", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "154", name: "Маски тканевые NAD+ +50Peptides Numbuzin9+(4шт.)", barcode: "8809652587653", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "155", name: "BB Pre More черный", barcode: "8809875904831", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "156", name: "Medicube Kojic Acid Turmeric Pad 160ml 70pads", barcode: "8800289477386", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "157", name: "INGA кулон", barcode: "8809958300598", price: "0", description: "", category: "other", stock: 0},
+            {id: "158", name: "НАБОР в 2 шага Probioderm Collagen Remodeling Booster Shot (15ml.+20ml.)", barcode: "8809849806017", price: "0", description: "", category: "sets", stock: 0},
+            {id: "159", name: "Medicube Kojic Acid Turmeric Niacinamide Serum 30ml", barcode: "8800289477416", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "160", name: "INGA", barcode: "8809378329926", price: "0", description: "", category: "other", stock: 0},
+            {id: "161", name: "Medicube AGE-R Glutathione Glow Toner 140ml", barcode: "8800256114382", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "162", name: "Солнцезащитный крем с коллагеном SPF50+PA++++ Probioderm (50ml.)", barcode: "8809971481595", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "163", name: "CC крем Pre More", barcode: "8800296554209", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "164", name: "9 Protein Perfume Silk Balm", barcode: "8809744060033", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "165", name: "Medicube Retinol NMN Boosting Serum 30ml", barcode: "8800256119325", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "166", name: "Поросужающая сыворотка с бакучиолом By Wishtrend (30мл.)", barcode: "8809572894022", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "167", name: "Kamali Sultan 50ml", barcode: "4673748056446", price: "0", description: "", category: "perfume", stock: 0},
+            {id: "168", name: "TIR TIR Кушон с ИИ эффектом 18 гр", barcode: "8800288642808", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "169", name: "тонер-мист AXIS-Y Dark Spot Correcting Glow Toner. 125ml", barcode: "8809634610959", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "170", name: "Энзимная пудра с зелёным чаем By Wishtrend (110г.)", barcode: "8809572891168", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "171", name: "TIR TIR Кушон Кристал 15 гр", barcode: "8800288641009", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "172", name: "тонер-мист AXIS-Y Dark Spot Correcting Glow Toner. 50ml", barcode: "8809634610119", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "173", name: "TIR TIR SUN SERUM 50ml", barcode: "8800288643669", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "174", name: "AXIS-Y Dark Spot Correcting Glow Cream. 50ml", barcode: "8809634610966", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "175", name: "TIR TIR Кушон 18 гр", barcode: "8809679696468", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "176", name: "Тонер поросужающий DermaFactory (150мл.)", barcode: "8809563069842", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "177", name: "Dr banggiwon lab shampoo anti hair loss 500ml", barcode: "8809916180279", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "178", name: "Тонер с ниацинамидом 11% DermaFactory (150мл.)", barcode: "8809563068067", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "179", name: "Mise en scene damage care shampoo 680ml", barcode: "8809925130067", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "180", name: "EGG Кушон 13 гр", barcode: "8809652584690", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "181", name: "CLIO KILL COVER Кушон 15 гр + запаска", barcode: "8809862283499", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "182", name: "Sur Medic azulene soothing cream 50мл", barcode: "8809653240694", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "183", name: "Маски (30 шт.) на каждый день", barcode: "4513915018085", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "184", name: "Маски (30шт.) на каждый день", barcode: "4513915018092", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "185", name: "Маски (30шт.) на каждый день", barcode: "4513915018078", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "186", name: "Shampoo Dandruff ex Dr+ Banggiwon (500ml.)", barcode: "8809916180286", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "187", name: "Маски (30шт.) на каждый день", barcode: "4513915018108", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "188", name: "Shampoo Dandruff Dr+ Banggiwon (1000ml.)", barcode: "8809916180422", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "189", name: "Round Lab 1025 Dokdo Cleansing Water 400мл", barcode: "8809738607343", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "190", name: "Round Lab 1025 Dokdo Cleansing Oil 200мл", barcode: "8809738605677", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "191", name: "Lab Shampoo Dr+ Banggiwon (1000ml.)", barcode: "8809916180408", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "192", name: "Lab Treatment Dr+ Banggiwon (1000ml.)", barcode: "8809914180486", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "193", name: "Тонер пэды Mediheal Madecassoside blemish (100шт.)", barcode: "8809615058688", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "194", name: "Маска ночная в тюбике Medicube с коевой кислотой (75мл.)", barcode: "8800289474859", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "195", name: "Тонер пэды с pdrn Mediheal (100шт.)", barcode: "8809936745106", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "196", name: "Тонер пэды для водного баланса Mediheal (100шт.)", barcode: "8809615058695", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "197", name: "Тонер пэды с ретинолом и коллагеном Mediheal (100шт.)", barcode: "http://m.site.naver.com/0vJsq", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "198", name: "Тонер пэды с энзимами для пилинга Mediheal (90шт.)", barcode: "8809615059630", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "199", name: "Тонер пэды осветляющие Mediheal (100шт.)", barcode: "8809615059302", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "200", name: "Тонер пэды с коллагеном Mediheal (100шт.)", barcode: "8809615058701", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "201", name: "Тонер пэды для проблемной кожи Mediheal (100шт.)", barcode: "8809615058671", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "202", name: "Гидрофильное масло Dr.Althea (150мл.)", barcode: "8809447255583", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "203", name: "Крем 345 Dr.Althea relief (50мл.)", barcode: "8809447256221", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "204", name: "Dr. Althea Gentle Vitamin C Serum 30мл", barcode: "8809447255101", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "205", name: "Mise-en-scene Professional Volume Care Purple Collagen Shampoo. 680мл", barcode: "8809925130647", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "206", name: "Набор Skin 1004 с сыворотками", barcode: "8809913831884", price: "0", description: "", category: "sets", stock: 0},
+            {id: "207", name: "Celimax The Real Noni Energy Repair Cream 50мл", barcode: "8809686386185", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "208", name: "Маски тканевые 345 Dr.Althea (4шт.)", barcode: "8809447256290", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "209", name: "Bliss & Bloom Real Collagen Vivid & Sleeping Beauty Signature Edition", barcode: "8809817480911", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "210", name: "Мими мини 345 Dr.Althea (60мл.)", barcode: "8809447256122", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "211", name: "Welltyon аодзиру Корея 100шт", barcode: "8809529954953", price: "0", description: "", category: "supplements", stock: 0},
+            {id: "212", name: "Сыворотка с ретинолом 0.2% Skin1004 (30мл)", barcode: "8809913832515", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "213", name: "Сыворотка Retinal shot 0.1% Celimax (30мл)", barcode: "8809700320805", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "214", name: "Сыворотка с ниацинамидом 10 txa 4 Anua (30мл)", barcode: "8809640734526", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "215", name: "Болтушка для местного применения Dr.Jart+ (15мл)", barcode: "8809642712928", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "216", name: "Мист желейный Dr.Althea Aqua (50мл)", barcode: "8809447256184", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "217", name: "Крем Dr.Althea Aqua (50мл)", barcode: "8809447256085", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "218", name: "Щербет Dr.Althea (50мл)", barcode: "8809447255620", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "219", name: "Пэды стягивающие Dr.Althea (50шт)", barcode: "8809447256306", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "220", name: "Тонер Dr.Althea (250мл)", barcode: "8809447253152", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "221", name: "Щербет Dr.Althea (50мл)", barcode: "8809447255071", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "222", name: "Мицеллярная вода Torriden (400мл)", barcode: "8809784600411", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "223", name: "Сыворотка с бамбуковой водой Dr.Althea Aqua (30мл)", barcode: "8809447256191", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "224", name: "Сыворотка с витамином С 63% и облепихой Dr.Althea (30мл)", barcode: "8809447255385", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "225", name: "Сыворотка с ниацинамидом 15% Dr.Althea (30мл)", barcode: "8809447254609", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "226", name: "Эмульсия EIIO наносить после тонера (150мл)", barcode: "8809783320006", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "227", name: "Мист с пантенолом 10% EIIO (100мл)", barcode: "8804014250350", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "228", name: "Сыворотка солнцезащитная SPF50+PA++++ NEOGEN (50мл)", barcode: "8800247160152", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "229", name: "Гель бустер с pdrn Medicube (300мл)", barcode: "8800256114979", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "230", name: "Крем с кофеином 2%+ретинол 300 ppm Kaine (50мл)", barcode: "8809971487337", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "231", name: "FINO маска для волос 230гр", barcode: "4550516493583", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "232", name: "Round lab умывашка камелия 150мл", barcode: "8809962542861", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "233", name: "Round lab сыворотка камелия 30мл", barcode: "8809962541857", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "234", name: "Крем с коллагеном Kaine (50мл)", barcode: "8800306560121", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "235", name: "Round lab умывашка бабл 150мл", barcode: "8809738599044", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "236", name: "Round lab шербет 50мл", barcode: "8809962542755", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "237", name: "Round lab гелевая умывашка 150мл", barcode: "8809875901120", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "238", name: "Крем пантенол+эктаин Kaine (70мл)", barcode: "8800306560091", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "239", name: "Round lab спф стик 19гр", barcode: "8809875904459", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "240", name: "Умыаашка для сухой кожи Kaine (145мл)", barcode: "8809954942587", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "241", name: "Round lab мужской крем 75мл", barcode: "8809962541246", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "242", name: "Round lab гидрофильное масло береза 200мл", barcode: "8809962542885", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "243", name: "Тонер с чёрным чаем Kaine (150мл)", barcode: "8809738595756", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "244", name: "Round lab сыворотка черная соя 50мл", barcode: "8809875908075", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "245", name: "Умывашка для жирной кожи Kaine (150мл)", barcode: "8809783323496", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "246", name: "Round lab сыворотка витамин С 30ml", barcode: "8809962540652", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "247", name: "Сыворотка с ниацинамидом и вит. С Kaine (30мл)", barcode: "8809783323502", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "248", name: "Round lab vita крем 50мл", barcode: "8809962540690", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "249", name: "Kaine сыворотка с коллагеном (30мл)", barcode: "8809738596265", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "250", name: "Round lab капсульный крем витамин С 50ml", barcode: "8809962542946", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "251", name: "acwell тонер PH 150ml", barcode: "8809129643189", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "252", name: "Arencia black tea умывашка 120гр", barcode: "8809562191179", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "253", name: "Arencia rice mucin умывашка 120гр", barcode: "8809562191674", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "254", name: "Arencia fresh blue hyssop умывашка 120гр", barcode: "8809562191070", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "255", name: "Kaine тонер с pdrn (300мл)", barcode: "8800306560077", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "256", name: "Arencia hyssop sebum control длинная умывашка 150гр", barcode: "8809562192152", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "257", name: "Arencia risehip mild ph длинная умывашка 150гр", barcode: "8809562192176", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "258", name: "Arencia rice + LHA длинная умывашка 150гр", barcode: "8809562192169", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "259", name: "Anua peach + niacin умывашка 150мл", barcode: "8800307370095", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "260", name: "Anua peach 70 + niacin сыворотка 30мл", barcode: "8809640733550", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "261", name: "ANUA умывашка гиалуронка + пантенол 150мл", barcode: "8809640735561", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "262", name: "ANUA тонер пэды PDRN 180ml 60 пэдов", barcode: "8809640738241", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "263", name: "Anua тонер TXA + ниацинамид 250 мл", barcode: "8800307372853", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "264", name: "ANUA сыворотка с азелаиновой кислотой 30мл", barcode: "8809640737190", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "265", name: "VT крем TX-toning 50ml", barcode: "8803463007782", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "266", name: "The ordinary сыворотка Matrixyl 30ml", barcode: "769915190168", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "267", name: "The ordinary сыворотка alpha arbutin 30ml", barcode: "769915196481", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "268", name: "The ordinary сыворотка caffeine 30ml", barcode: "769915190670", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "269", name: "The ordinary сыворотка Granactive 30мл", barcode: "769915190045", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "270", name: "The ordinary сыворотка Hyaluronic 60ml", barcode: "769915233735", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "271", name: "The ordinary тонер milky 100ml", barcode: "769915233551", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "272", name: "Atopalm массажное масло 120ml", barcode: "8809723785957", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "273", name: "Atopalm крем для беременных 150мл", barcode: "8809554845080", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "274", name: "Kaine сыворотка ночная с молочной кислотой 9% (30мл)", barcode: "8809954941245", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "275", name: "Celimax Retinal shot booster 0.1% (15ml)", barcode: "8809700320812", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "276", name: "Kaine сыворотка на укрепление барьера (30мл)", barcode: "8809968200604", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "277", name: "Celimax тонер пэды осветляющие (40 пэдов)", barcode: "8809743546323", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "278", name: "Neogen сыворотка с ниацинамидом 15% (30мл)", barcode: "8800247160909", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "279", name: "Celimax сыворотка с ниацинамидом 5% (30мл)", barcode: "8809875907412", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "280", name: "J'sDerma гель для местного применения против акне (20мл)", barcode: "8809099265015", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "281", name: "Celimax крем ниацинамид 5%+транексамовая кислота 5% (35мл)", barcode: "8809971484503", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "282", name: "Celimax НАБОР щербет (2шт*50мл)", barcode: "8809606852578", price: "0", description: "", category: "sets", stock: 0},
+            {id: "283", name: "Celimax dual barrier сыворотка (30мл)", barcode: "8809606850482", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "284", name: "Celimax Noni сыворотка (30мл)", barcode: "8809875907795", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "285", name: "Celimax cica serum (40ml)", barcode: "8809743544626", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "286", name: "Celimax сыворотка для жирной кожи (30мл)", barcode: "8809782559018", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "287", name: "Fazax средство для стимуляции роста ресниц (3мл)", barcode: "4603728418124", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "288", name: "Fazax средство для стимуляции роста волос (8мл)", barcode: "4603728418131", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "289", name: "Моросил для похудения (порошок 2,5г*14стиков)", barcode: "8809761954964", price: "0", description: "", category: "supplements", stock: 0},
+            {id: "290", name: "Skin1004 centella тонер осветляющий (210мл)", barcode: "8809576261165", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "291", name: "Skin1004 centella гидрофильное масло (200мл)", barcode: "8809576261110", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "292", name: "Skin1004 Centella сыворотка SPF50+PA++++ с пробиотиками (50мл)", barcode: "8809913830573", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "293", name: "Skin1004 Centella сыворотка осветляющая (50мл)", barcode: "8809913830627", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "294", name: "Torriden сыворотка поросужающая (30мл)", barcode: "8809784603467", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "295", name: "Torriden сыворотка с витамином С осветляющая (30мл)", barcode: "8809784602002", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "296", name: "Bioderma sensibio gel moussant (умывашка 200мл)", barcode: "3701129812037", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "297", name: "Retinal Skin Booster serum MEDITHERAPY", barcode: "8809606774078", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "298", name: "Кушон Pre More", barcode: "8809971487221", price: "0", description: "", category: "makeup", stock: 0},
+            {id: "299", name: "Salon link extra shampoo treatment in 1000ml", barcode: "4513574022812", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "300", name: "Salon link extra shampoo 1000ml", barcode: "4513574038332", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "301", name: "Salon link medicated amino treatment in shampoo 1000ml", barcode: "4513574037748", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "302", name: "On: the body happy breeze perfume wash 865ml", barcode: "8801051130690", price: "7.03", description: "", category: "hygiene", stock: 99},
+            {id: "303", name: "On: the body sweet love perfume wash 865ml", barcode: "8801051130683", price: "7.03", description: "", category: "hygiene", stock: 99},
+            {id: "304", name: "Salon link extra conditioner repair & protect 1000ml", barcode: "4513574014169", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "305", name: "шампунь Kracie Dear Beaute Himawari Gloss & Repair Oil In Shampoo.", barcode: "4901417700704", price: "9.72", description: "", category: "haircare", stock: 99},
+            {id: "306", name: "парфюмированный крем для рук и тела Kamali - Sultan 250мл", barcode: "4673748057610", price: "7.72", description: "", category: "perfume", stock: 99},
+            {id: "307", name: "парфюмированный крем для тела Kamali Sultan с дозатором 250мл", barcode: "4673748058273", price: "6.25", description: "", category: "perfume", stock: 99},
+            {id: "308", name: "парфюмированный гель для душа Kamali Blanche 250мл", barcode: "4673748055425", price: "6.80", description: "", category: "perfume", stock: 99},
+            {id: "309", name: "Японская фруктовая аудира 21шт внутри", barcode: "4560121431979", price: "7.05", description: "", category: "supplements", stock: 99},
+            {id: "310", name: "Mise en scene perfect serum shampoo 680ml", barcode: "8809803548472", price: "8.24", description: "", category: "haircare", stock: 99},
+            {id: "311", name: "Salon link amino conditioner Damage repair 1000ml", barcode: "4513574036642", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "312", name: "Salon link amino shampoo damage repair 1000ml", barcode: "4513574036635", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "313", name: "Kerasys perfume cherry blossom perfumed shampoo 1L", barcode: "8801046330845", price: "6.59", description: "", category: "haircare", stock: 99},
+            {id: "314", name: "Salon link extra conditioner and 1000ml", barcode: "4513574038349", price: "0", description: "", category: "haircare", stock: 0},
+            {id: "315", name: "Kerasys perfume green lily perfume shampoo 1L", barcode: "8801046289143", price: "6.59", description: "", category: "haircare", stock: 99},
+            {id: "316", name: "Kerasys perfume Floral garden perfumed shampoo 1L", barcode: "8801046292365", price: "6.59", description: "", category: "haircare", stock: 99},
+            {id: "317", name: "La'dor eco professional damage protector acid shampoo 900ml", barcode: "8809500810926", price: "10.00", description: "", category: "haircare", stock: 99},
+            {id: "318", name: "La'dor damage protector acid conditioner 900ml", barcode: "8809500814269", price: "0.11", description: "", category: "haircare", stock: 99},
+            {id: "319", name: "Kerasys perfume violet rose perfume shampoo 1L", barcode: "8801046289136", price: "6.59", description: "", category: "haircare", stock: 99},
+            {id: "320", name: "Kerasys perfume fresh & lush perfume shampoo 1L", barcode: "8801046291092", price: "6.59", description: "", category: "haircare", stock: 99},
+            {id: "321", name: "La'dor tripleX3 natural shampoo sensitive scalp shampoo for all hair types 530ml", barcode: "8809500810629", price: "8.05", description: "", category: "haircare", stock: 99},
+            {id: "322", name: "La'dor hydro LPP treatment low molecular PPT treatment for dry and damaged hair 530ml", barcode: "8809500810759", price: "8.05", description: "", category: "haircare", stock: 99},
+            {id: "323", name: "La'dor moisture balancing conditioner daily clinic for dry and damaged hair 100ml", barcode: "8809500817598", price: "2.55", description: "", category: "haircare", stock: 99},
+            {id: "324", name: "&honey milky precious EX repair hair oil 105ml", barcode: "4589546897184", price: "17.45", description: "", category: "haircare", stock: 99},
+            {id: "325", name: "Mise en scene perfect perfume base up essence 200ml", barcode: "8809803556224", price: "8.15", description: "", category: "haircare", stock: 99},
+            {id: "326", name: "Ichikami smoothing shampoo 480ml", barcode: "4901417722416", price: "10.00", description: "", category: "haircare", stock: 99},
+            {id: "327", name: "& honey Ex deep moist hair oil 100", barcode: "4589546891519", price: "13.03", description: "", category: "haircare", stock: 99},
+            {id: "328", name: "& honey color control repair treatment 445g", barcode: "4589546896774", price: "17.11", description: "", category: "haircare", stock: 99},
+            {id: "329", name: "& honey milky precious EX repair treatment 500g", barcode: "4589546897139", price: "18.61", description: "", category: "haircare", stock: 99},
+            {id: "330", name: "& honey milky precious EX repair shampoo 500ml", barcode: "4589546897122", price: "18.61", description: "", category: "haircare", stock: 99},
+            {id: "331", name: "& honey pixie moist silky shampoo", barcode: "4589546896019", price: "18.61", description: "", category: "haircare", stock: 99},
+            {id: "332", name: "Round lab birch juice intensive cream 50ml", barcode: "8809962543127", price: "11.20", currency: "USD", description: "", category: "skincare", stock: 13},
+            {id: "333", name: "Celimax Noni Acne Cleanser (155ml)", barcode: "8809541379468", price: "8.70", currency: "USD", description: "", category: "skincare", stock: 49},
+            {id: "334", name: "Celimax dual barrier skin wearable cream 50ml", barcode: "8809606850505", price: "0", description: "", category: "skincare", stock: 0},
+            {id: "335", name: "Vitasub slim collagen plus white glutathione 30шт", barcode: "8809159467656", price: "0", description: "", category: "supplements", stock: 0},
+            {id: "336", name: "Skin1004 centella сыворотка SPF50+PA++++ с пробиотиками (50мл)", barcode: "", price: "9.20", currency: "USD", description: "", category: "skincare", stock: 35},
+            {id: "337", name: "Skin1004 centella гидрофильное масло (200мл)", barcode: "", price: "9.00", currency: "USD", description: "", category: "skincare", stock: 80},
+            {id: "338", name: "Skin1004 centella тонер осветляющий (210мл)", barcode: "", price: "9.20", currency: "USD", description: "", category: "skincare", stock: 5},
+            {id: "339", name: "Salon link amino conditioner Damage repair 1000ml", barcode: "", price: "7.61", currency: "USD", description: "", category: "haircare", stock: 99},
+            {id: "340", name: "Salon link medicated amino treatment in shampoo 1000ml", barcode: "", price: "7.61", currency: "USD", description: "", category: "haircare", stock: 99},
+            {id: "341", name: "Salon link extra conditioner and 1000ml", barcode: "", price: "7.61", currency: "USD", description: "", category: "haircare", stock: 99},
+            {id: "342", name: "Salon link extra shampoo treatment in 1000ml", barcode: "", price: "7.61", currency: "USD", description: "", category: "haircare", stock: 99},
+            {id: "343", name: "Salon link extra conditioner repair & protect 1000ml", barcode: "", price: "7.61", currency: "USD", description: "", category: "haircare", stock: 99},
+            {id: "344", name: "Salon link amino shampoo damage repair 1000ml", barcode: "", price: "7.61", currency: "USD", description: "", category: "haircare", stock: 99},
+            {id: "345", name: "Celimax сыворотка с ниацинамидом 5% (30мл)", barcode: "", price: "8.73", currency: "USD", description: "", category: "skincare", stock: 50},
+            {id: "346", name: "Celimax Noni сыворотка (30мл)", barcode: "", price: "9.35", currency: "USD", description: "", category: "skincare", stock: 20},
+            {id: "347", name: "Celimax тонер пэды осветляющие (40 пэдов)", barcode: "", price: "7.50", currency: "USD", description: "", category: "skincare", stock: 2},
+            {id: "348", name: "Celimax Retinal shot booster 0.1% (15ml)", barcode: "", price: "7.80", currency: "USD", description: "", category: "skincare", stock: 99},
+            {id: "349", name: "Neogen сыворотка с ниацинамидом 15% (30мл)", barcode: "", price: "15.00", currency: "USD", description: "", category: "skincare", stock: 15},
+            {id: "350", name: "Моросил для похудения (порошок 2,5г*14стиков)", barcode: "", price: "13.40", currency: "USD", description: "", category: "supplements", stock: 99},
+            {id: "351", name: "Fazax средство для стимуляции роста волос (8мл)", barcode: "", price: "23.43", currency: "USD", description: "", category: "haircare", stock: 50},
+            {id: "352", name: "Fazax средство для стимуляции роста ресниц (3мл)", barcode: "", price: "34.73", currency: "USD", description: "", category: "other", stock: 40},
+            {id: "353", name: "Celimax сыворотка для жирной кожи (30мл)", barcode: "", price: "8.14", currency: "USD", description: "", category: "skincare", stock: 20},
+            {id: "354", name: "Celimax cica serum (40ml)", barcode: "", price: "8.26", currency: "USD", description: "", category: "skincare", stock: 20},
+            {id: "355", name: "Salon link extra shampoo 1000ml", barcode: "", price: "7.61", currency: "USD", description: "", category: "haircare", stock: 99},
+            {id: "356", name: "Bioderma sensibio gel moussant (умывашка 200мл)", barcode: "", price: "16.13", currency: "USD", description: "", category: "skincare", stock: 30},
+            {id: "357", name: "Torriden сыворотка поросужающая (30мл)", barcode: "", price: "10.50", currency: "USD", description: "", category: "skincare", stock: 40},
+            {id: "358", name: "Skin1004 Centella сыворотка осветляющая (50мл)", barcode: "", price: "7.84", currency: "USD", description: "", category: "skincare", stock: 40},
+            {id: "359", name: "Torriden сыворотка с витамином C осветляющая (30мл)", barcode: "", price: "11.00", currency: "USD", description: "", category: "skincare", stock: 40},
+            {id: "360", name: "Celimax dual barrier сыворотка (30мл)", barcode: "", price: "9.65", currency: "USD", description: "", category: "skincare", stock: 99},
+            {id: "361", name: "Celimax НАБОР щербет (2шт*50мл)", barcode: "", price: "11.59", currency: "USD", description: "", category: "sets", stock: 5},
+            {id: "362", name: "Celimax крем ниацинамид 5% +транексамовая кислота 5% (35мл)", barcode: "", price: "8.10", currency: "USD", description: "", category: "skincare", stock: 50},
+            {id: "363", name: "J'sDerma гель для местного применения против акне (20мл)", barcode: "", price: "8.37", currency: "USD", description: "", category: "skincare", stock: 7},
+            {id: "364", name: "Kaine сыворотка на укрепление барьера (30мл)", barcode: "", price: "8.89", currency: "USD", description: "", category: "skincare", stock: 15},
+            {id: "365", name: "Kaine сыворотка ночная с молочной кислотой 9% (30мл)", barcode: "", price: "8.80", currency: "USD", description: "", category: "skincare", stock: 30},
+            {id: "366", name: "The ordinary тонер milky 100ml", barcode: "", price: "970", currency: "SOM", description: "", category: "skincare", stock: 99},
+            {id: "367", name: "The ordinary сыворотка Hyaluronic 60ml", barcode: "", price: "1058", currency: "SOM", description: "", category: "skincare", stock: 99},
+            {id: "368", name: "The ordinary сыворотка alpha arbutin 30ml", barcode: "", price: "882", currency: "SOM", description: "", category: "skincare", stock: 99},
+            {id: "369", name: "The ordinary сыворотка Matrixyl 30ml", barcode: "", price: "882", currency: "SOM", description: "", category: "skincare", stock: 99},
+            {id: "370", name: "Atopalm массажное масло 120ml", barcode: "", price: "931", currency: "SOM", description: "", category: "skincare", stock: 99},
+            {id: "371", name: "The ordinary сыворотка Granactive 30мл", barcode: "", price: "811", currency: "SOM", description: "", category: "skincare", stock: 99},
+            {id: "372", name: "The ordinary сыворотка caffeine 30ml", barcode: "", price: "882", currency: "SOM", description: "", category: "skincare", stock: 99},
+            {id: "373", name: "VT крем TX-toning 50ml", barcode: "", price: "15.00", currency: "USD", description: "", category: "skincare", stock: 99},
+            {id: "374", name: "ANUA сыворотка с азелаиновой кислотой 30мл", barcode: "", price: "13.06", currency: "USD", description: "", category: "skincare", stock: 99},
+            {id: "375", name: "Arencia rice mucin умывашка 120гр", barcode: "", price: "10.00", currency: "USD", description: "", category: "skincare", stock: 99},
+            {id: "376", name: "Arencia black tea умывашка 120гр", barcode: "", price: "10.00", currency: "USD", description: "", category: "skincare", stock: 99},
+            {id: "377", name: "acwell тонер PH 150ml", barcode: "", price: "7.45", currency: "USD", description: "", category: "skincare", stock: 99},
+            {id: "378", name: "Kaine сыворотка с коллагеном (30мл)", barcode: "", price: "8.89", currency: "USD", description: "", category: "skincare", stock: 30}
+        ];
+
+        // Инициализация начальных данных (только если localStorage пустой)
+        function initializeProducts() {
+            const existing = localStorage.getItem('products');
+            if (!existing || existing === '[]') {
+                localStorage.setItem('products', JSON.stringify(INITIAL_PRODUCTS));
+            }
+        }
+
+        // Автозагрузка новых товаров в существующий localStorage
+        function seedNewProducts() {
+            const existing = JSON.parse(localStorage.getItem('products') || '[]');
+            const existingNames = new Set(existing.map(p => p.name.toLowerCase()));
+            let changed = false;
+
+            INITIAL_PRODUCTS.forEach(ip => {
+                if (!existingNames.has(ip.name.toLowerCase())) {
+                    existing.push(ip);
+                    existingNames.add(ip.name.toLowerCase());
+                    changed = true;
+                } else if (parseFloat(ip.price) > 0) {
+                    // Обновляем цену если была 0 а теперь есть
+                    const match = existing.find(p => p.name.toLowerCase() === ip.name.toLowerCase());
+                    if (match && parseFloat(match.price) === 0) {
+                        match.price = ip.price;
+                        match.currency = ip.currency || 'USD';
+                        match.stock = ip.stock || match.stock;
+                        changed = true;
+                    }
+                }
+            });
+
+            if (changed) {
+                localStorage.setItem('products', JSON.stringify(existing));
+            }
+        }
+
+        // Сброс и загрузка начальных товаров
+        function resetProducts() {
+            const confirmPhrase = 'Вы точно хотите сбросить';
+            const userInput = prompt('Для сброса всех товаров введите фразу:\n\n"' + confirmPhrase + '"');
+
+            if (userInput === null) return; // Отмена
+
+            if (userInput.trim().toLowerCase() === confirmPhrase.toLowerCase()) {
+                localStorage.setItem('products', JSON.stringify(INITIAL_PRODUCTS));
+                loadProducts();
+                updateStats();
+                alert('Загружено 335 товаров!');
+            } else {
+                alert('Фраза введена неверно. Сброс отменён.');
+            }
+        }
+
+        // Обновление курса валют
+        function updateExchangeRate(value) {
+            const rate = parseFloat(value);
+            if (rate && rate > 0) {
+                EXCHANGE_RATE = rate;
+                localStorage.setItem('exchangeRate', rate);
+                loadProducts();
+                updateStats();
+            }
+        }
+
+        // Инициализация курса в поле ввода
+        function initExchangeRate() {
+            const input = document.getElementById('exchangeRateInput');
+            if (input) input.value = EXCHANGE_RATE;
+        }
+
+        // Вызываем инициализацию при загрузке
+        initializeProducts();
+        seedNewProducts();
+
+        // Обновление цен из скриншотов (применяется к localStorage)
+        function applyPriceUpdates() {
+            const updates = [
+                {id: "302", price: "7.03", stock: 99},
+                {id: "303", price: "7.03", stock: 99},
+                {id: "305", price: "9.72", stock: 99},
+                {id: "306", price: "7.72", stock: 99},
+                {id: "307", price: "6.25", stock: 99},
+                {id: "308", price: "6.80", stock: 99},
+                {id: "309", price: "7.05", stock: 99},
+                {id: "310", price: "8.24", stock: 99},
+                {id: "313", price: "6.59", stock: 99},
+                {id: "315", price: "6.59", stock: 99},
+                {id: "316", price: "6.59", stock: 99},
+                {id: "317", price: "10.00", stock: 99},
+                {id: "318", price: "0.11", stock: 99},
+                {id: "319", price: "6.59", stock: 99},
+                {id: "320", price: "6.59", stock: 99},
+                {id: "321", price: "8.05", stock: 99},
+                {id: "322", price: "8.05", stock: 99},
+                {id: "323", price: "2.55", stock: 99},
+                {id: "324", price: "17.45", stock: 99},
+                {id: "325", price: "8.15", stock: 99},
+                {id: "326", price: "10.00", stock: 99},
+                {id: "327", price: "13.03", stock: 99},
+                {id: "328", price: "17.11", stock: 99},
+                {id: "329", price: "18.61", stock: 99},
+                {id: "330", price: "18.61", stock: 99},
+                {id: "331", price: "18.61", stock: 99},
+            ];
+
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            let changed = false;
+
+            updates.forEach(upd => {
+                const product = products.find(p => p.id === upd.id);
+                if (product) {
+                    product.price = upd.price;
+                    product.stock = upd.stock;
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                localStorage.setItem('products', JSON.stringify(products));
+            }
+        }
+        applyPriceUpdates();
+
+        // Обновление статистики
+        function updateStats() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+
+            document.getElementById('totalProducts').textContent = products.length;
+
+            const categories = new Set(products.map(p => p.category).filter(c => c));
+            document.getElementById('totalCategories').textContent = categories.size;
+
+            const inStock = products.filter(p => (p.stock || 0) > 0).length;
+            document.getElementById('inStock').textContent = inStock;
+
+            const outOfStock = products.filter(p => (p.stock || 0) === 0).length;
+            document.getElementById('outOfStock').textContent = outOfStock;
+
+            // Всего единиц товара
+            const totalStock = products.reduce((sum, p) => sum + (p.stock || 0), 0);
+            document.getElementById('totalStock').textContent = totalStock.toLocaleString('ru-RU');
+        }
+
+        // Обновление фильтра категорий
+        function updateCategoryFilter() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const select = document.getElementById('categoryFilter');
+            const currentValue = select.value;
+
+            const categories = new Set(products.map(p => p.category).filter(c => c));
+
+            select.innerHTML = '<option value="">Все категории</option>';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = CATEGORIES[cat] || cat;
+                select.appendChild(option);
+            });
+
+            select.value = currentValue;
+        }
+
+        // Получить отфильтрованные товары
+        function getFilteredProducts() {
+            let products = JSON.parse(localStorage.getItem('products') || '[]');
+
+            // Фильтрация по поиску
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (searchQuery) {
+                products = products.filter(p =>
+                    p.name.toLowerCase().includes(searchQuery) ||
+                    (p.description && p.description.toLowerCase().includes(searchQuery)) ||
+                    (p.barcode && p.barcode.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            // Фильтрация по категории
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            if (categoryFilter) {
+                products = products.filter(p => p.category === categoryFilter);
+            }
+
+            // Фильтрация по наличию
+            const stockFilter = document.getElementById('stockFilter').value;
+            if (stockFilter === 'in') {
+                products = products.filter(p => (p.stock || 0) > 5);
+            } else if (stockFilter === 'low') {
+                products = products.filter(p => (p.stock || 0) > 0 && (p.stock || 0) <= 5);
+            } else if (stockFilter === 'out') {
+                products = products.filter(p => (p.stock || 0) === 0);
+            }
+
+            // Фильтрация по диапазону цен
+            const priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
+            const priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
+            if (priceMin > 0 || priceMax < Infinity) {
+                products = products.filter(p => {
+                    const price = parseFloat(p.price) || 0;
+                    return price >= priceMin && price <= priceMax;
+                });
+            }
+
+            // Сортировка
+            const sortFilter = document.getElementById('sortFilter').value;
+            switch (sortFilter) {
+                case 'name-asc':
+                    products.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+                    break;
+                case 'name-desc':
+                    products.sort((a, b) => b.name.localeCompare(a.name, 'ru'));
+                    break;
+                case 'price-asc':
+                    products.sort((a, b) => getPriceInUSD(a) - getPriceInUSD(b));
+                    break;
+                case 'price-desc':
+                    products.sort((a, b) => getPriceInUSD(b) - getPriceInUSD(a));
+                    break;
+                case 'stock-asc':
+                    products.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+                    break;
+                case 'stock-desc':
+                    products.sort((a, b) => (b.stock || 0) - (a.stock || 0));
+                    break;
+            }
+
+            return products;
+        }
+
+        // Сброс фильтра цен
+        function clearPriceFilter() {
+            document.getElementById('priceMin').value = '';
+            document.getElementById('priceMax').value = '';
+            loadProducts();
+        }
+
+        // Получить класс статуса склада
+        function getStockClass(stock) {
+            if (stock > 5) return 'stock-high';
+            if (stock > 0) return 'stock-low';
+            return 'stock-out';
+        }
+
+        // Получить текст статуса склада
+        function getStockText(stock) {
+            if (stock > 5) return `${stock} шт.`;
+            if (stock > 0) return `Мало: ${stock} шт.`;
+            return 'Нет в наличии';
+        }
+
+        // Получить цену в USD для сравнения
+        function getPriceInUSD(product) {
+            const price = parseFloat(product.price) || 0;
+            return product.currency === 'SOM' ? price / EXCHANGE_RATE : price;
+        }
+
+        // Показать конвертированную цену
+        function updateConvertedPrice() {
+            const price = parseFloat(document.getElementById('productPrice').value) || 0;
+            const currency = document.getElementById('priceCurrency').value;
+            const convertedEl = document.getElementById('convertedPrice');
+
+            if (price > 0) {
+                if (currency === 'SOM') {
+                    const usdPrice = (price / EXCHANGE_RATE).toFixed(2);
+                    convertedEl.textContent = `= $${usdPrice} USD`;
+                } else {
+                    const somPrice = (price * EXCHANGE_RATE).toLocaleString('ru-RU');
+                    convertedEl.textContent = `= ${somPrice} СОМ`;
+                }
+                convertedEl.style.display = 'block';
+            } else {
+                convertedEl.style.display = 'none';
+            }
+        }
+
+        // Загрузка товаров
+        function loadProducts() {
+            const products = getFilteredProducts();
+            const allProducts = JSON.parse(localStorage.getItem('products') || '[]');
+            const container = document.getElementById('productsAdmin');
+
+            if (products.length === 0) {
+                const searchQuery = document.getElementById('searchInput').value.trim();
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>${searchQuery ? 'Ничего не найдено' : 'Товары пока не добавлены'}</p>
+                        ${!searchQuery ? '<button class="btn btn-primary" onclick="openModal()">+ Добавить первый товар</button>' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            const countText = products.length === allProducts.length
+                ? `Показано: <span>${products.length}</span> товаров`
+                : `Показано: <span>${products.length}</span> из <span>${allProducts.length}</span> товаров`;
+
+            container.innerHTML = `
+                <div class="products-count">${countText}</div>
+            ` + products.map(product => {
+                const icon = CATEGORY_ICONS[product.category] || '📦';
+                const categoryName = CATEGORIES[product.category] || product.category || '';
+                return `
+                <div class="product-admin-item">
+                    <div class="product-admin-image" onclick="editProduct('${product.id}')" title="Нажмите чтобы изменить фото">
+                        ${product.image ? `<img src="${product.image}" alt="${product.name}">` : icon}
+                    </div>
+                    <div class="product-admin-info">
+                        <div class="product-admin-name">${product.name}</div>
+                        <div class="product-admin-meta">
+                            <span class="product-admin-price">${product.currency === 'SOM'
+                                ? `${Math.round(parseFloat(product.price || 0)).toLocaleString('ru-RU')} сом <span style="color:#666;font-weight:400;font-size:0.85em">/ $${(parseFloat(product.price || 0) / EXCHANGE_RATE).toFixed(2)}</span>`
+                                : `$${parseFloat(product.price || 0).toFixed(2)} <span style="color:#666;font-weight:400;font-size:0.85em">/ ${Math.round(parseFloat(product.price || 0) * EXCHANGE_RATE).toLocaleString('ru-RU')} сом</span>`
+                            }</span>
+                            ${product.category ? `<span class="product-admin-category"><span class="category-icon">${icon}</span>${categoryName}</span>` : ''}
+                            <span class="product-admin-stock ${getStockClass(product.stock || 0)}">${getStockText(product.stock || 0)}</span>
+                            ${product.barcode ? `<span class="product-admin-barcode">${product.barcode}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="product-admin-actions">
+                        <button class="btn btn-edit" onclick="editProduct('${product.id}')">Изменить</button>
+                        <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">Удалить</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Открыть модальное окно
+        function openModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Добавить товар';
+            document.getElementById('productForm').reset();
+            document.getElementById('priceCurrency').value = 'USD';
+            document.getElementById('productStock').value = '0';
+            document.getElementById('convertedPrice').style.display = 'none';
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        // Закрыть модальное окно
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+            editingId = null;
+        }
+
+        // Сохранить товар
+        function saveProduct(e) {
+            e.preventDefault();
+
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+
+            // Сохраняем цену в оригинальной валюте
+            let price = parseFloat(document.getElementById('productPrice').value) || 0;
+            const currency = document.getElementById('priceCurrency').value;
+
+            const productData = {
+                id: editingId || Date.now().toString(),
+                name: document.getElementById('productName').value.trim(),
+                category: document.getElementById('productCategory').value,
+                description: document.getElementById('productDescription').value.trim(),
+                price: price.toFixed(2),
+                currency: currency,
+                stock: parseInt(document.getElementById('productStock').value) || 0,
+                barcode: document.getElementById('productBarcode').value.trim(),
+                image: document.getElementById('productImage').value.trim()
+            };
+
+            if (editingId) {
+                // Редактирование
+                const index = products.findIndex(p => p.id === editingId);
+                if (index !== -1) {
+                    products[index] = productData;
+                }
+            } else {
+                // Добавление
+                products.push(productData);
+            }
+
+            localStorage.setItem('products', JSON.stringify(products));
+            closeModal();
+            loadProducts();
+            updateStats();
+            updateCategoryFilter();
+        }
+
+        // Редактировать товар
+        function editProduct(id) {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const product = products.find(p => p.id === id);
+
+            if (!product) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = 'Редактировать товар';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category || '';
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productPrice').value = product.price || '0';
+            document.getElementById('priceCurrency').value = product.currency || 'USD';
+            document.getElementById('productStock').value = product.stock || '0';
+            document.getElementById('productBarcode').value = product.barcode || '';
+            document.getElementById('productImage').value = product.image || '';
+            updateConvertedPrice();
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        // Удалить товар
+        function deleteProduct(id) {
+            if (!confirm('Удалить этот товар?')) return;
+
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const filtered = products.filter(p => p.id !== id);
+            localStorage.setItem('products', JSON.stringify(filtered));
+            loadProducts();
+            updateStats();
+            updateCategoryFilter();
+        }
+
+        // Генерация HTML для каталога
+        function generateCatalogHTML(autoPrint = false) {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            products.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+            const today = new Date().toLocaleDateString('ru-RU');
+
+            let rows = '';
+            products.forEach((product, index) => {
+                const rawPrice = parseFloat(product.price || 0);
+                const priceUSD = product.currency === 'SOM' ? (rawPrice / EXCHANGE_RATE).toFixed(2) : rawPrice.toFixed(2);
+                const priceSOM = product.currency === 'SOM' ? Math.round(rawPrice).toLocaleString('ru-RU') : Math.round(rawPrice * EXCHANGE_RATE).toLocaleString('ru-RU');
+                const category = CATEGORIES[product.category] || product.category || '—';
+                const stock = product.stock || 0;
+                let stockClass = 'stock-out';
+                let stockText = 'Нет';
+                if (stock > 5) { stockClass = 'stock-in'; stockText = stock + ' шт.'; }
+                else if (stock > 0) { stockClass = 'stock-low'; stockText = stock + ' шт.'; }
+
+                rows += '<tr>' +
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td><b>' + product.name + '</b>' +
+                    (product.barcode && !product.barcode.startsWith('http') ? '<br><small style="color:#888;font-family:monospace">' + product.barcode + '</small>' : '') +
+                    '</td>' +
+                    '<td style="color:#666">' + category + '</td>' +
+                    '<td class="' + stockClass + '">' + stockText + '</td>' +
+                    '<td class="price" style="color:#2563eb;font-weight:bold">$' + priceUSD + '</td>' +
+                    '<td class="price" style="color:#059669">' + priceSOM + '</td>' +
+                    '</tr>';
+            });
+
+            return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Каталог товаров</title>' +
+                '<style>' +
+                '*{margin:0;padding:0;box-sizing:border-box}' +
+                'body{font-family:Arial,sans-serif;padding:20px;font-size:11px;background:#fff}' +
+                '.header{text-align:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #333}' +
+                '.header h1{font-size:24px;margin-bottom:8px;color:#1a1a2e}' +
+                '.header p{color:#666;font-size:12px}' +
+                'table{width:100%;border-collapse:collapse}' +
+                'th{background:#f0f0f0;padding:8px 5px;text-align:left;border-bottom:2px solid #333;font-size:10px}' +
+                'td{padding:6px 5px;border-bottom:1px solid #ddd;vertical-align:top}' +
+                'tr:nth-child(even){background:#fafafa}' +
+                '.price{text-align:right;white-space:nowrap}' +
+                '.stock-in{color:#059669}' +
+                '.stock-low{color:#d97706}' +
+                '.stock-out{color:#dc2626}' +
+                '.footer{margin-top:20px;text-align:center;color:#999;font-size:10px}' +
+                '@media print{body{padding:10px}.no-print{display:none}}' +
+                '</style></head><body>' +
+                '<div class="header"><h1>Каталог товаров</h1>' +
+                '<p>Дата: ' + today + ' | Курс: 1 USD = ' + EXCHANGE_RATE + ' СОМ | Всего товаров: ' + products.length + '</p></div>' +
+                '<table><thead><tr>' +
+                '<th style="width:30px">№</th>' +
+                '<th>Название</th>' +
+                '<th style="width:100px">Категория</th>' +
+                '<th style="width:70px">Наличие</th>' +
+                '<th style="width:70px" class="price">USD</th>' +
+                '<th style="width:80px" class="price">СОМ</th>' +
+                '</tr></thead><tbody>' + rows + '</tbody></table>' +
+                '<div class="footer">Оптовый каталог товаров</div>' +
+                (autoPrint ? '<script>window.onload=function(){window.print()}<\/script>' : '') +
+                '</body></html>';
+        }
+
+        // Печать каталога
+        function printCatalog() {
+            const html = generateCatalogHTML(true);
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(html);
+            printWindow.document.close();
+        }
+
+        // Просмотр каталога
+        function previewCatalog() {
+            const html = generateCatalogHTML(false);
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(html);
+            previewWindow.document.close();
+        }
+
+        // Скачать PDF
+        async function downloadPDF() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            if (products.length === 0) {
+                alert('Нет товаров для экспорта');
+                return;
+            }
+
+            // Создаём скрытый контейнер
+            const container = document.createElement('div');
+            container.style.cssText = 'position:fixed;left:0;top:0;width:800px;background:#fff;z-index:99999;padding:20px;';
+            container.innerHTML = generateCatalogHTML(false).replace(/<html>|<\/html>|<head>.*?<\/head>|<body>|<\/body>|<!DOCTYPE html>/gs, '');
+            document.body.appendChild(container);
+
+            // Показываем индикатор загрузки
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:99998;';
+            overlay.innerHTML = '<div style="color:#fff;font-size:20px;">Создание PDF...</div>';
+            document.body.appendChild(overlay);
+
+            try {
+                // Динамически загружаем html2canvas
+                if (!window.html2canvas) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                // Динамически загружаем jsPDF
+                if (!window.jspdf) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                // Ждём рендеринг
+                await new Promise(r => setTimeout(r, 300));
+
+                // Создаём canvas
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                // Создаём PDF
+                const { jsPDF } = window.jspdf;
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+                // Первая страница
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // Дополнительные страницы если нужно
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                // Скачиваем
+                const today = new Date().toISOString().split('T')[0];
+                pdf.save('catalog_' + today + '.pdf');
+
+            } catch (error) {
+                console.error('PDF Error:', error);
+                alert('Ошибка создания PDF: ' + error.message + '\nИспользуйте функцию "Печать" и выберите "Сохранить как PDF"');
+            } finally {
+                container.remove();
+                overlay.remove();
+            }
+        }
+
+        // Закрытие модалки по клику вне её
+        document.getElementById('productModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // События фильтров
+        document.getElementById('searchInput').addEventListener('input', loadProducts);
+        document.getElementById('categoryFilter').addEventListener('change', loadProducts);
+        document.getElementById('stockFilter').addEventListener('change', loadProducts);
+        document.getElementById('sortFilter').addEventListener('change', loadProducts);
+        document.getElementById('priceMin').addEventListener('input', loadProducts);
+        document.getElementById('priceMax').addEventListener('input', loadProducts);
+
+        // Загрузка при старте
+        loadProducts();
+        updateStats();
+        updateCategoryFilter();
+        initExchangeRate();
+    </script>
+</body>
+</html>

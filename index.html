@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог товаров</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 50%, #b3c2e8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            padding: 30px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #5c6bc0, #3949ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .currency-rate {
+            background: #e8f5e9;
+            padding: 12px 25px;
+            border-radius: 12px;
+            display: inline-block;
+            color: #2e7d32;
+            font-weight: 600;
+            border: 1px solid #c8e6c9;
+        }
+
+        /* Панель фильтров */
+        .filters {
+            background: rgba(255,255,255,0.9);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            background: #fff;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #5c6bc0;
+            box-shadow: 0 0 15px rgba(92, 107, 192, 0.2);
+        }
+
+        .filter-select {
+            padding: 14px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 0.95em;
+            background: #fff;
+            color: #333;
+            cursor: pointer;
+            min-width: 180px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select option {
+            background: #fff;
+            color: #333;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #5c6bc0;
+        }
+
+        .products-count {
+            color: #666;
+            font-size: 0.9em;
+            margin-left: auto;
+            padding: 8px 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        /* Категории как кнопки */
+        .categories-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.9);
+            color: #555;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .category-btn:hover {
+            background: #fff;
+            border-color: #5c6bc0;
+            color: #5c6bc0;
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+            color: white;
+            border-color: transparent;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(92, 107, 192, 0.3);
+        }
+
+        .products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .product-item {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover {
+            transform: translateX(8px);
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-color: #5c6bc0;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            margin-right: 12px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-size: 1em;
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 3px;
+        }
+
+        .product-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+
+        .product-category {
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .product-stock {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .stock-high {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stock-low {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
+        .stock-out {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .product-barcode {
+            color: #888;
+            font-size: 0.8em;
+            font-family: monospace;
+        }
+
+        .product-prices {
+            text-align: right;
+            min-width: 120px;
+        }
+
+        .price-usd {
+            font-size: 1.3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #5c6bc0, #3949ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .price-som {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .no-products {
+            text-align: center;
+            color: #666;
+            padding: 80px 20px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 20px;
+            border: 2px dashed #ccc;
+        }
+
+        .no-products p {
+            font-size: 1.3em;
+        }
+
+        .admin-link {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(92, 107, 192, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .admin-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(92, 107, 192, 0.5);
+        }
+
+        /* Счётчик в категориях */
+        .cat-count {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .category-btn.active .cat-count {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .product-item {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .category-btn {
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        /* Улучшенные карточки */
+        .product-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #5c6bc0, #3949ab);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .product-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-item:hover::before {
+            opacity: 1;
+        }
+
+        /* Статистика в шапке */
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-stat {
+            background: #f5f5f5;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .header-stat-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #5c6bc0;
+        }
+
+        .header-stat-label {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        /* Улучшенный поиск */
+        .search-input {
+            position: relative;
+        }
+
+        .filters {
+            position: relative;
+        }
+
+        /* Плавные переходы для фильтров */
+        .filter-select {
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:hover {
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input,
+            .filter-select {
+                width: 100%;
+            }
+
+            .products-count {
+                text-align: center;
+                margin-left: 0;
+            }
+
+            .product-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-image {
+                margin-right: 0;
+                margin-bottom: 15px;
+                width: 100%;
+                height: 180px;
+            }
+
+            .product-prices {
+                text-align: left;
+                margin-top: 15px;
+                width: 100%;
+            }
+
+            .categories-bar {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Каталог товаров</h1>
+            <p class="subtitle">Оптовые цены</p>
+            <div class="currency-rate">
+                Курс: 1 USD = <span id="rate">89</span> СОМ
+            </div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-value" id="statTotal">0</div>
+                    <div class="header-stat-label">Товаров</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="statInStock">0</div>
+                    <div class="header-stat-label">В наличии</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="statCategories">0</div>
+                    <div class="header-stat-label">Категорий</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="categories-bar" id="categoriesBar">
+            <!-- Категории загружаются динамически -->
+        </div>
+
+        <div class="filters">
+            <input type="text" class="search-input" id="searchInput" placeholder="Поиск по названию или штрихкоду...">
+
+            <select class="filter-select" id="sortSelect">
+                <option value="name-asc">По названию (А-Я)</option>
+                <option value="name-desc">По названию (Я-А)</option>
+                <option value="price-asc">Сначала дешевые</option>
+                <option value="price-desc">Сначала дорогие</option>
+            </select>
+
+            <select class="filter-select" id="stockFilter">
+                <option value="">Все товары</option>
+                <option value="in">В наличии</option>
+            </select>
+
+            <span class="products-count" id="productsCount"></span>
+        </div>
+
+        <div class="products-list" id="productsList">
+            <!-- Товары загружаются из localStorage -->
+        </div>
+    </div>
+
+    <a href="admin.html" class="admin-link">Админ-панель</a>
+
+    <script>
+        // Курс конвертации USD -> СОМ (загружается из localStorage)
+        const EXCHANGE_RATE = parseFloat(localStorage.getItem('exchangeRate')) || 89;
+
+        // Категории с иконками
+        const CATEGORIES = {
+            skincare: 'Уход за кожей',
+            haircare: 'Уход за волосами',
+            makeup: 'Макияж',
+            perfume: 'Парфюмерия',
+            hygiene: 'Гигиена',
+            supplements: 'Добавки',
+            sets: 'Наборы',
+            other: 'Другое'
+        };
+
+        const CATEGORY_ICONS = {
+            skincare: '✨',
+            haircare: '💇',
+            makeup: '💄',
+            perfume: '🌸',
+            hygiene: '🧴',
+            supplements: '💊',
+            sets: '🎁',
+            other: '📦'
+        };
+
+        // Товары по умолчанию (добавляются автоматически если их нет)
+        const DEFAULT_PRODUCTS = [
+            { name: 'Skin1004 centella сыворотка SPF50+PA++++ с пробиотиками (50мл)', category: 'skincare', price: '9.20', currency: 'USD', stock: 35 },
+            { name: 'Skin1004 centella гидрофильное масло (200мл)', category: 'skincare', price: '9.00', currency: 'USD', stock: 80 },
+            { name: 'Skin1004 centella тонер осветляющий (210мл)', category: 'skincare', price: '9.20', currency: 'USD', stock: 5 },
+            { name: 'Salon link amino conditioner Damage repair 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
+            { name: 'Salon link medicated amino treatment in shampoo 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
+            { name: 'Salon link extra conditioner and 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
+            { name: 'Salon link extra shampoo treatment in 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
+            { name: 'Salon link extra conditioner repair & protect 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
+            { name: 'Salon link amino shampoo damage repair 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
+            { name: 'Celimax сыворотка с ниацинамидом 5% (30мл)', category: 'skincare', price: '8.73', currency: 'USD', stock: 50 },
+            { name: 'Celimax Noni сыворотка (30мл)', category: 'skincare', price: '9.35', currency: 'USD', stock: 20 },
+            { name: 'Celimax тонер пэды осветляющие (40 пэдов)', category: 'skincare', price: '7.50', currency: 'USD', stock: 2 },
+            { name: 'Celimax Retinal shot booster 0.1% (15ml)', category: 'skincare', price: '7.80', currency: 'USD', stock: 99 },
+            { name: 'Neogen сыворотка с ниацинамидом 15% (30мл)', category: 'skincare', price: '15.00', currency: 'USD', stock: 15 },
+            { name: 'Round lab birch juice intensive cream 50ml', category: 'skincare', price: '11.20', currency: 'USD', stock: 13 },
+            { name: 'Моросил для похудения (порошок 2,5г*14стиков)', category: 'supplements', price: '13.40', currency: 'USD', stock: 99 },
+            { name: 'Fazax средство для стимуляции роста волос (8мл)', category: 'haircare', price: '23.43', currency: 'USD', stock: 50 },
+            { name: 'Fazax средство для стимуляции роста ресниц (3мл)', category: 'other', price: '34.73', currency: 'USD', stock: 40 },
+            { name: 'Celimax сыворотка для жирной кожи (30мл)', category: 'skincare', price: '8.14', currency: 'USD', stock: 20 },
+            { name: 'Celimax cica serum (40ml)', category: 'skincare', price: '8.26', currency: 'USD', stock: 20 },
+            { name: 'Salon link extra shampoo 1000ml', category: 'haircare', price: '7.61', currency: 'USD', stock: 99 },
+            { name: 'Bioderma sensibio gel moussant (умывашка 200мл)', category: 'skincare', price: '16.13', currency: 'USD', stock: 30 },
+            { name: 'Torriden сыворотка поросужающая (30мл)', category: 'skincare', price: '10.50', currency: 'USD', stock: 40 },
+            { name: 'Skin1004 Centella сыворотка осветляющая (50мл)', category: 'skincare', price: '7.84', currency: 'USD', stock: 40 },
+            { name: 'Celimax Noni Acne Cleanser (155ml)', category: 'skincare', price: '8.70', currency: 'USD', stock: 49 },
+            { name: 'Torriden сыворотка с витамином C осветляющая (30мл)', category: 'skincare', price: '11.00', currency: 'USD', stock: 40 },
+            { name: 'Celimax dual barrier сыворотка (30мл)', category: 'skincare', price: '9.65', currency: 'USD', stock: 99 },
+            { name: 'Celimax НАБОР щербет (2шт*50мл)', category: 'sets', price: '11.59', currency: 'USD', stock: 5 },
+            { name: 'Celimax крем ниацинамид 5% +транексамовая кислота 5% (35мл)', category: 'skincare', price: '8.10', currency: 'USD', stock: 50 },
+            { name: "J'sDerma гель для местного применения против акне (20мл)", category: 'skincare', price: '8.37', currency: 'USD', stock: 7 },
+            { name: 'Kaine сыворотка на укрепление барьера (30мл)', category: 'skincare', price: '8.89', currency: 'USD', stock: 15 },
+            { name: 'Kaine сыворотка ночная с молочной кислотой 9% (30мл)', category: 'skincare', price: '8.80', currency: 'USD', stock: 30 },
+            { name: 'The ordinary тонер milky 100ml', category: 'skincare', price: '970', currency: 'SOM', stock: 99 },
+            { name: 'The ordinary сыворотка Hyaluronic 60ml', category: 'skincare', price: '1058', currency: 'SOM', stock: 99 },
+            { name: 'The ordinary сыворотка alpha arbutin 30ml', category: 'skincare', price: '882', currency: 'SOM', stock: 99 },
+            { name: 'The ordinary сыворотка Matrixyl 30ml', category: 'skincare', price: '882', currency: 'SOM', stock: 99 },
+            { name: 'Atopalm массажное масло 120ml', category: 'skincare', price: '931', currency: 'SOM', stock: 99 },
+            { name: 'The ordinary сыворотка Granactive 30мл', category: 'skincare', price: '811', currency: 'SOM', stock: 99 },
+            { name: 'The ordinary сыворотка caffeine 30ml', category: 'skincare', price: '882', currency: 'SOM', stock: 99 },
+            { name: 'VT крем TX-toning 50ml', category: 'skincare', price: '15.00', currency: 'USD', stock: 99 },
+            { name: 'ANUA сыворотка с азелаиновой кислотой 30мл', category: 'skincare', price: '13.06', currency: 'USD', stock: 99 },
+            { name: 'Arencia rice mucin умывашка 120гр', category: 'skincare', price: '10.00', currency: 'USD', stock: 99 },
+            { name: 'Arencia black tea умывашка 120гр', category: 'skincare', price: '10.00', currency: 'USD', stock: 99 },
+            { name: 'acwell тонер PH 150ml', category: 'skincare', price: '7.45', currency: 'USD', stock: 99 },
+            { name: 'Kaine сыворотка с коллагеном (30мл)', category: 'skincare', price: '8.89', currency: 'USD', stock: 30 },
+        ];
+
+        // Автозагрузка товаров в localStorage
+        function seedProducts() {
+            const existing = JSON.parse(localStorage.getItem('products') || '[]');
+            const existingNames = new Set(existing.map(p => p.name.toLowerCase()));
+            let added = 0;
+
+            DEFAULT_PRODUCTS.forEach(dp => {
+                if (!existingNames.has(dp.name.toLowerCase())) {
+                    existing.push({
+                        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                        name: dp.name,
+                        category: dp.category,
+                        description: '',
+                        price: dp.price,
+                        currency: dp.currency,
+                        stock: dp.stock,
+                        barcode: '',
+                        image: ''
+                    });
+                    existingNames.add(dp.name.toLowerCase());
+                    added++;
+                }
+            });
+
+            if (added > 0) {
+                localStorage.setItem('products', JSON.stringify(existing));
+            }
+        }
+
+        seedProducts();
+
+        // Получить цену в USD для сравнения
+        function getPriceInUSD(product) {
+            const price = parseFloat(product.price) || 0;
+            return product.currency === 'SOM' ? price / EXCHANGE_RATE : price;
+        }
+
+        let selectedCategory = '';
+
+        // Загрузка категорий
+        function loadCategories() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const categories = new Set(products.map(p => p.category).filter(c => c));
+            const container = document.getElementById('categoriesBar');
+
+            // Подсчёт товаров по категориям
+            const categoryCounts = {};
+            products.forEach(p => {
+                if (p.category) {
+                    categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+                }
+            });
+
+            let html = `<button class="category-btn ${selectedCategory === '' ? 'active' : ''}" onclick="selectCategory('')">🏠 Все <span class="cat-count">${products.length}</span></button>`;
+
+            categories.forEach(cat => {
+                const isActive = selectedCategory === cat ? 'active' : '';
+                const icon = CATEGORY_ICONS[cat] || '📦';
+                const count = categoryCounts[cat] || 0;
+                html += `<button class="category-btn ${isActive}" onclick="selectCategory('${cat}')">${icon} ${CATEGORIES[cat] || cat} <span class="cat-count">${count}</span></button>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Выбор категории
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            loadCategories();
+            loadProducts();
+        }
+
+        // Получить класс статуса склада
+        function getStockClass(stock) {
+            if (stock > 5) return 'stock-high';
+            if (stock > 0) return 'stock-low';
+            return 'stock-out';
+        }
+
+        // Получить текст статуса склада
+        function getStockText(stock) {
+            if (stock > 5) return `В наличии: ${stock} шт.`;
+            if (stock > 0) return `Мало: ${stock} шт.`;
+            return 'Нет в наличии';
+        }
+
+        // Получить отфильтрованные и отсортированные товары
+        function getFilteredProducts() {
+            let products = JSON.parse(localStorage.getItem('products') || '[]');
+
+            // Фильтрация по поиску
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (searchQuery) {
+                products = products.filter(p =>
+                    p.name.toLowerCase().includes(searchQuery) ||
+                    (p.description && p.description.toLowerCase().includes(searchQuery)) ||
+                    (p.barcode && p.barcode.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            // Фильтрация по категории
+            if (selectedCategory) {
+                products = products.filter(p => p.category === selectedCategory);
+            }
+
+            // Фильтрация по наличию
+            const stockFilter = document.getElementById('stockFilter').value;
+            if (stockFilter === 'in') {
+                products = products.filter(p => (p.stock || 0) > 0);
+            }
+
+            // Сортировка: сначала в наличии, потом нет в наличии, затем по выбранному критерию
+            const sortValue = document.getElementById('sortSelect').value;
+            products.sort((a, b) => {
+                const aInStock = (a.stock || 0) > 0 ? 0 : 1;
+                const bInStock = (b.stock || 0) > 0 ? 0 : 1;
+                if (aInStock !== bInStock) return aInStock - bInStock;
+
+                switch (sortValue) {
+                    case 'name-asc':
+                        return a.name.localeCompare(b.name, 'ru');
+                    case 'name-desc':
+                        return b.name.localeCompare(a.name, 'ru');
+                    case 'price-asc':
+                        return getPriceInUSD(a) - getPriceInUSD(b);
+                    case 'price-desc':
+                        return getPriceInUSD(b) - getPriceInUSD(a);
+                    default:
+                        return 0;
+                }
+            });
+
+            return products;
+        }
+
+        // Загрузка товаров
+        function loadProducts() {
+            const products = getFilteredProducts();
+            const container = document.getElementById('productsList');
+            const countEl = document.getElementById('productsCount');
+
+            // Показать количество
+            const total = JSON.parse(localStorage.getItem('products') || '[]').length;
+            if (products.length === total) {
+                countEl.textContent = `Товаров: ${total}`;
+            } else {
+                countEl.textContent = `Найдено: ${products.length} из ${total}`;
+            }
+
+            if (products.length === 0) {
+                const searchQuery = document.getElementById('searchInput').value.trim();
+                container.innerHTML = `
+                    <div class="no-products">
+                        <p>${searchQuery || selectedCategory ? 'Ничего не найдено' : 'Товары пока не добавлены'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = products.map((product, index) => {
+                const icon = CATEGORY_ICONS[product.category] || '📦';
+                const categoryName = CATEGORIES[product.category] || product.category || '';
+                return `
+                <div class="product-item" style="animation-delay: ${index * 0.03}s">
+                    <div class="product-image">
+                        ${product.image ? `<img src="${product.image}" alt="${product.name}">` : icon}
+                    </div>
+                    <div class="product-info">
+                        <h2 class="product-name">${product.name}</h2>
+                        <div class="product-meta">
+                            ${product.category ? `<span class="product-category">${icon} ${categoryName}</span>` : ''}
+                            <span class="product-stock ${getStockClass(product.stock || 0)}">${getStockText(product.stock || 0)}</span>
+                        </div>
+                        <p class="product-description">${product.description || ''}</p>
+                        ${product.barcode ? `<p class="product-barcode">Штрихкод: ${product.barcode}</p>` : ''}
+                    </div>
+                    <div class="product-prices">
+                        ${product.currency === 'SOM'
+                            ? `<div class="price-usd">${Math.round(parseFloat(product.price || 0)).toLocaleString('ru-RU')} СОМ</div>
+                               <div class="price-som">$${(parseFloat(product.price || 0) / EXCHANGE_RATE).toFixed(2)}</div>`
+                            : `<div class="price-usd">$${parseFloat(product.price || 0).toFixed(2)}</div>
+                               <div class="price-som">${(parseFloat(product.price || 0) * EXCHANGE_RATE).toLocaleString('ru-RU')} СОМ</div>`
+                        }
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Обновление статистики в шапке
+        function updateHeaderStats() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            document.getElementById('statTotal').textContent = products.length;
+            document.getElementById('statInStock').textContent = products.filter(p => (p.stock || 0) > 0).length;
+            document.getElementById('statCategories').textContent = new Set(products.map(p => p.category).filter(c => c)).size;
+        }
+
+        // Установка курса
+        document.getElementById('rate').textContent = EXCHANGE_RATE;
+
+        // События
+        document.getElementById('searchInput').addEventListener('input', loadProducts);
+        document.getElementById('sortSelect').addEventListener('change', loadProducts);
+        document.getElementById('stockFilter').addEventListener('change', loadProducts);
+
+        // Загрузка при старте
+        loadCategories();
+        loadProducts();
+        updateHeaderStats();
+    </script>
+</body>
+</html>
